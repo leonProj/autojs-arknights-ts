@@ -1,0 +1,47 @@
+{
+  "abis": null,
+  "assets": [],
+  "build": {
+    "build_number": null,
+    "build_time": null,
+    "release": null
+  },
+  "encryptLevel": 0,
+  "useFeatures": [],
+  "launchConfig": {
+    "displaySplash": true,
+    "hideLogs": false,
+    "splashText": "方舟收菜",
+    "stableMode": false,
+    "splashIcon": null,
+    "splashLayoutXml": null
+  },
+  "main": "./bin/main.js",
+  "name": "方舟收菜",
+  "optimization": {
+    "removeOpenCv": false,
+    "unusedResources": false,
+    "removeAccessibilityService": null,
+    "obfuscateComponents": false
+  },
+  "packageName": "pers.leon.autoark",
+  "scripts": {},
+  "versionCode": 1,
+  "versionName": "1.0.0",
+  "icon": null,
+  "publish": {
+    "category": "其他",
+    "details": "方舟收菜",
+    "maxAutoJsVersion": 0,
+    "maxProVersion": 0,
+    "minAutoJsVersion": 0,
+    "minProVersion": 0,
+    "minSdkVersion": 0,
+    "permissions": [],
+    "summary": "方舟收菜",
+    "tags": null
+  },
+  "signingConfig": null,
+  "androidResources": null,
+  "permissionConfig": null
+}
