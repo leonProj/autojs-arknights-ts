@@ -1,5 +1,3 @@
-"ui";
-
 const ui = require('ui');
 const { readFile } = require('fs').promises;
 const fs = require('fs');

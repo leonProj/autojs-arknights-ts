@@ -5,8 +5,9 @@
   "main": "./bin/main.js",
   "type": "commonjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rollup -c & node ./script/addNodeTag.js & node ./script/copyWeb.js"
+    "test": "rollup -i ./src/test/index.ts -o ./bin/test/index.js -c & node ./script/addNodeTag.js",
+    "build": "rollup -c & node ./script/addUiTag.js & node ./script/copyWeb.js",
+    "cleanBuild": "node script/delDir.js ../bin & npm run build & node script/delDir.js ../bin/test"
   },
   "keywords": [],
   "author": "",

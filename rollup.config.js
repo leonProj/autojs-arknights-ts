@@ -7,7 +7,7 @@ export default [
   {
     input: './src/main.js',
     output: {
-      file: './bin/main.js',
+      file: './bin/main.node.js',
       format: 'cjs',
       name: 'main',
       sourcemap: true,

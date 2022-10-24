@@ -1,5 +1,5 @@
 /**
- * @Description 复制src下的web目录到bin目录下。因为autojs写法问题，rollup打包依赖解析时候不会把web目录打包进去
+ * @Description: 复制src下的web目录到bin目录下。因为autojs写法问题，rollup打包依赖解析时候不会把web目录打包进去 请勿删除
  */
 const fs = require('fs')
 const path = require('path')
@@ -19,14 +19,10 @@ function copyWeb() {
     })
 }
 
-try {
+if(fs.existsSync(dest)){
+    copyWeb()
+}else {
     fs.mkdirSync(dest)
     copyWeb()
-}catch (e){
-    if(e.message.includes('file already exists')){
-        copyWeb()
-    }else{
-        console.error('复制web目录失败', e)
-    }
 }
 
