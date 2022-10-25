@@ -4,7 +4,13 @@
 
 
 import {HrOcrResult} from "@/utils/ocrUtil";
-import {calOriginalPoint, getHrOcrResultItemPointByText, Point} from "@/utils/point";
+import {
+    calOriginalPoint,
+    getHrOcrResultItemPointByText,
+    getPointByFeatures,
+    GetPointByFeaturesOption,
+    Point
+} from "@/utils/point";
 import {click} from "accessibility";
 // @ts-ignore
 import {findColorSync, Image, readImage, matchFeatures} from "image";
@@ -61,49 +67,44 @@ async function clickCenter(): Promise<void> {
 }
 
 /**
- * 全分辨率找图,从截图对象上找小图
- * 能用比例计算坐标的的尽量用比例计算。特征找图的耗时要几百毫秒
- * 特征匹配。比普通的模板匹配更兼容不同分辨率或旋转形变，但效率更低。
- * 若要提高效率，可以在计算大图特征时调整scale参数，方法默认为0.5,我给了0.8
- * 越小越快，但可以放缩过度导致匹配错误
- * 计算大图的特征。若在特征匹配时无法搜索到正确结果，可以调整这里的参数，比如{scale: 1}
- * 也可以指定{region: [...]}参数只计算这个区域的特征提高效率
- * @param capture 图片对象
- * @param path 小图的图片路径  例如：`${deviceInfo.pathDir}/img/close.png`)`
- * @param option 选项
- * @return 返回小图在大图中的中心点的坐标。没找到返回null
- * @see https://pro.autojs.org/docs/zh/v9/generated/classes/image.Image.html#detectandcomputefeatures
+ * 全分辨率找图,从截图对象上找小图，然后点击
+ * @param capture
+ * @param path
+ * @param option
  */
-async function getPointByFeatures(capture: Image, path: string, option: any = {
-    scale: 0.8,
-    region: null
-}): Promise<Point | null> {
-    let start = Date.now();
-    let smallPic = await readImage(path);
-    // 计算小图特征
-    // @ts-ignore
-    let smallPicFeatures = await smallPic.detectAndComputeFeatures();
-    if (!option.region) {
-        delete option.region
+async function clickByFeatures(capture: Image, path: string, option: GetPointByFeaturesOption = {scale: 0.7}): Promise<void> {
+    console.log(`准备点击全分辨率找图坐标,图片路径为${path}`);
+    const smallPoint = await getPointByFeatures(capture, path, option)
+    if (smallPoint) {
+        const {x, y} = calOriginalPoint(smallPoint.x, smallPoint.y)
+        console.log(`点击全分辨率找图坐标成功,坐标为${x},${y}`);
+        await click(x, y)
+    } else {
+        console.log(`点击全分辨率找图坐标失败,未匹配图片${path}`);
     }
-    // @ts-ignore
-    let captureFeatures = await capture.detectAndComputeFeatures(option);
-    // 特征匹配
-    let result = await matchFeatures(captureFeatures, smallPicFeatures);
-    // 回收特征对象
-    captureFeatures.recycle();
-    smallPicFeatures.recycle();
-    let end = Date.now();
-    console.log(`全分辨率找图时间: ${end - start}ms`);
-    return result ? result.center : null
 }
 
+
+/**
+ * @description 点击左上角返回按钮,坐标根据比例计算
+ */
+async function clickBack(): Promise<void> {
+    checkInit()
+    console.log('点击返回');
+    // x 120 / 1882  = 0.0635
+    const x = deviceInfo.longSide as number * 0.0635
+    // y 64/1059 = 0.0604
+    const y = deviceInfo.shortSide as number * 0.0604
+    console.log(`点击返回按钮坐标为x:${x},y:${y}`);
+    await click(x, y)
+}
 
 module.exports = {
     clickByHrOcrResultAndText,
     clickByColor,
     clickCenter,
-    getPointByFeatures
+    clickByFeatures,
+    clickBack
 }
 
 
