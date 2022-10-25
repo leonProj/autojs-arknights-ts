@@ -2,7 +2,7 @@
  * @file: 通用方法 ，初始化等
  */
 
-import * as state from "@/state";
+import {deviceInfo} from "@/state";
 import {device} from "device";
 
 const cv = require("@autojs/opencv");
@@ -10,7 +10,7 @@ const cv = require("@autojs/opencv");
 /**
  * @description 初始化设备信息
  */
-function init() {
+function init(): void {
     // 设备宽度
     const width = device.screenWidth;
     // 设备高度
@@ -30,11 +30,11 @@ function init() {
     // 截取矩形左上角y坐标
     const top = longSide / 2 - smallHeight / 2;
 
-    state.deviceInfo.longSide = longSide;
-    state.deviceInfo.shortSide = shortSide;
-    state.deviceInfo.smallHeight = smallHeight;
-    state.deviceInfo.smallWidth = smallWidth;
-    state.deviceInfo.clipRect = new cv.Rect(left, top, smallWidth, smallHeight);
+    deviceInfo.longSide = longSide;
+    deviceInfo.shortSide = shortSide;
+    deviceInfo.smallHeight = smallHeight;
+    deviceInfo.smallWidth = smallWidth;
+    deviceInfo.clipRect = new cv.Rect(left, top, smallWidth, smallHeight);
 
 }
 
