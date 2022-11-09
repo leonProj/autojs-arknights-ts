@@ -12,12 +12,12 @@ export interface Ocr {
     /**
      * @Description: 文字检测,根据图片返回文字坐标
      * @param img  需识别的图像，为Bitmap类型，Autojs中的图像可通过图像的.getBitmap()方法进行转换。
-     * @param ratio  缩放比率，默认为1，在识别较小的图片时可适当调小。
+     * @param ratio  缩放比率，默认为1，在识别较小的图片时可适当调大。
      */
     detect(img: any, ratio?: number): any
 }
 
-declare interface HrOcrResultItem {
+export interface HrOcrResultItem {
     /**
      * @description 文字内容
      */
@@ -53,9 +53,9 @@ export type HrOcrResult = HrOcrResultItem[];
 /**
  * @description 文字检测,根据图片返回文字坐标
  */
-async function hrOcr(ocr:Ocr, capture :Image):Promise<HrOcrResult>{
+function hrOcr(ocr:Ocr, capture :Image) :HrOcrResult{
     const start = Date.now();
-    let results = ocr.detect(capture.toBitmap(), 1);
+    let results = ocr.detect(capture.toBitmap(), 1.6);
     const end = Date.now();
     console.log(`hrOcr文字检测检测时间为 ：${end - start}ms`);
     const res = []

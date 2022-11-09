@@ -1,6 +1,14 @@
 /**
  * @file 公招tag
  */
+
+interface TagsItem {
+    tags: string[],
+    operators: string[],
+}
+
+export type Tags = TagsItem []
+
 const tag = [
     "新手", "资深干员", "高级资深干员", "远程位", "近战位",
     "先锋干员", "狙击干员", "医疗干员", "术师干员",
@@ -9,14 +17,14 @@ const tag = [
     "位移", "控场", "爆发", "召唤", "快速复活", "费用回复",
     "支援机械",]
 
-const tags6 = [
+const tags6:Tags = [
     {
         tags: ['高级资深干员'],
         operators: ['所有的公招六星干员'],
     }
 ]
 
-const tags5 = [
+const tags5:Tags = [
     {
         "tags": [
             "资深干员"
@@ -287,7 +295,7 @@ const tags5 = [
     }
 ]
 
-const tags4 = [
+const tags4:Tags = [
     {
         "tags": [
             "削弱"

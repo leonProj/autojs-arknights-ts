@@ -17,16 +17,27 @@ import {findColorSync, Image, readImage, matchFeatures} from "image";
 import {Color} from "color";
 import {deviceInfo} from "@/state";
 import {checkInit} from "@/utils/checkUtil";
-import "../types/autoPro9/image";
+
 
 /**
  * @description 点击ocr结果中对应文字的坐标
  * @param  hrOcrResult 文字识别结果
- * @param  text 要点击的文字
+ * @param  text 要点击的文字 , 为数组时候，只要数组中有一个匹配就点击
  */
-async function clickByHrOcrResultAndText(hrOcrResult: HrOcrResult, text: string): Promise<void> {
+async function clickByHrOcrResultAndText(hrOcrResult: HrOcrResult, text: string |string[]): Promise<void> {
     console.log(`准备点击${text}`);
-    const smallPoint = getHrOcrResultItemPointByText(hrOcrResult, text)
+    let smallPoint = null
+    if (Array.isArray(text)) {
+        for (const t of text) {
+            const point = getHrOcrResultItemPointByText(hrOcrResult, t)
+            if (point) {
+                smallPoint = point
+                break
+            }
+        }
+    }else {
+        smallPoint = getHrOcrResultItemPointByText(hrOcrResult, text)
+    }
     if (smallPoint) {
         const {x, y} = calOriginalPoint(smallPoint.x, smallPoint.y)
         await click(x, y)
@@ -99,12 +110,36 @@ async function clickBack(): Promise<void> {
     await click(x, y)
 }
 
-module.exports = {
+/**
+ * @description 点击圆形×号 ，全分辨率找图
+ * @param capture
+ */
+async function clickCircleClose(capture: Image): Promise<void> {
+    console.log('点击圆形×号关闭');
+    await clickByFeatures(capture, `${deviceInfo.pathDir}/img/close.png`)
+}
+
+/**
+ * @description 点击左上角首页按钮，坐标比例计算
+ */
+async function clickHome() {
+    console.log('点击主页按钮');
+    // x 346/1882 = 0.1839
+    const x = deviceInfo.longSide as number * 0.1839
+    // y 64/1059 = 0.0604
+    const y = deviceInfo.shortSide as number * 0.0604
+    console.log(`主页按钮坐标为x:${x},y:${y}`);
+    await click(x, y)
+}
+
+export {
     clickByHrOcrResultAndText,
     clickByColor,
     clickCenter,
     clickByFeatures,
-    clickBack
+    clickBack,
+    clickCircleClose,
+    clickHome
 }
 
 

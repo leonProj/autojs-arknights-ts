@@ -1,9 +1,20 @@
 import {test} from "@/test/toastTest";
 import {testInit} from "@/test/commonUtilTest";
 import {testHrOcr} from "@/test/ocrUtilTest";
+const { showAlertDialog } = require('dialogs');
 
-async function main(){
-    await testHrOcr()
+async function alert(e: any) {
+    await showAlertDialog("错误", { content: e.message,type:"overlay" });
 }
 
-main().catch(e => console.error(e));
+import {run} from "@/test/runTest";
+import {showToast} from "toast";
+
+async function main() {
+    await run()
+}
+
+main().catch(e =>{
+    console.error(e)
+    alert(e)
+})

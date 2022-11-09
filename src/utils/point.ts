@@ -15,7 +15,7 @@ export interface Point {
     /**
      * @Description: x坐标
      */
-    x: number,
+    x: number
     /**
      * @Description: x坐标
      */
@@ -23,7 +23,7 @@ export interface Point {
 }
 
 export interface GetPointByFeaturesOption {
-    scale?: number,
+    scale?: number
     region?: Region
 }
 

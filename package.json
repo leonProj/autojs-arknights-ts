@@ -6,7 +6,7 @@
   "type": "commonjs",
   "scripts": {
     "test": "rollup -i ./src/test/index.ts -o ./bin/test/index.js -c & node ./script/addNodeTag.js",
-    "build": "rollup -c & node ./script/addUiTag.js & node ./script/copyWeb.js & node script/delDir.js ../bin/test",
+    "build": "rollup -c & node ./script/addUiTag.js & node ./script/copyWeb.js",
     "cleanBuild": "node script/delDir.js ../bin & npm run build",
     "clean": "node script/delDir.js ../bin"
   },
