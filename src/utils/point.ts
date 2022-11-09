@@ -87,10 +87,13 @@ async function getPointByFeatures(capture: Image, path: string, option: GetPoint
     smallPicFeatures.recycle();
     let end = Date.now();
     console.log(`全分辨率找图时间: ${end - start}ms`);
+    console.log('全分辨率找图结果:',result)
     if (result) {
-        const p = result.center;
-        console.log(`全分辨率找图成功,坐标为${p.center.x},${p.center.y}`);
-        return p
+        const {topLeft,bottomRight} = result
+        const centerX = (topLeft.x + bottomRight.x) / 2
+        const centerY = (topLeft.y + bottomRight.y) / 2
+        console.log(`全分辨率找图成功,中心点坐标为${centerX},${centerY}`);
+        return {x: centerX, y: centerY}
     } else {
         console.log(`全分辨率找图失败,未匹配图片${path}`);
         return null

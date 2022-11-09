@@ -23,8 +23,8 @@ function ocrFix(str,ocrFixDict){
         return ocrFixDict[match]
     })
 }
-async function alert(e: any) {
-    await showAlertDialog("结束", { content: e.message,type:"overlay" });
+async function alert(e: string) {
+    await showAlertDialog("结束", { content: e,type:"overlay" });
 }
 
 
