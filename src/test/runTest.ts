@@ -1,6 +1,6 @@
 import {gameInfo} from "@/state";
 const {delay} = require('lang');
-import gameRouter from '@/router'
+import {getGameRouter} from '@/router'
 const {showToast} = require('toast');
 import {init} from '@/utils/commonUtil';
 import {captureAndClip} from "@/utils/imageUtil";
@@ -44,8 +44,9 @@ async function run() {
     const ocr = await plugins.load("com.hraps.ocr")
 
     while (true) {
+        const gameRouter = getGameRouter();
         // 公招流程
-        if(gameInfo.isPurchaseEnd){
+        if(gameInfo.allDown){
             showToast('运行结束');
             alert(`流程结束`);
             break;

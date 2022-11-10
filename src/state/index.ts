@@ -47,6 +47,16 @@ interface GameInfo {
      * 是否采购中心结束。默认false
      */
     isPurchaseEnd:boolean
+
+    /**
+     * 是否访问好友结束。默认false
+     */
+    isFriendHomeEnd:boolean
+
+    /**
+     * 是全部结束
+     */
+    allDown:boolean
 }
 
 
@@ -64,7 +74,10 @@ const deviceInfo: DeviceInfo = {
 
 
 const gameInfo: GameInfo = {
-    isPublicRecruitEnd: false,
+    isPublicRecruitEnd: true,
+    isPurchaseEnd:true,
+    isFriendHomeEnd:false,
+    allDown:false,
 }
 
 

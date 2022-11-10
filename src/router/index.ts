@@ -138,15 +138,19 @@ const main: Router = [
     {
         describe: '明日方舟主界面',
         keywords: {
-            // 采购中心-- 来购中己  干员寻访--下员寻访
-            include: ['档案', '采购中心', ['公开招募', '公开募'], '干员寻访', '任务', '基建',],
-            ocrFix: {'来': '采', '下': '干', '己': '心'}
+            // 采购中心-- 来购中己  干员寻访--下员寻访  好友--好反 好友--好屁
+            include: ['档案', '采购中心', ['公开招募', '公开募'], '干员寻访', '任务', '基建', '好友'],
+            ocrFix: {'来': '采', '下': '干', '己': '心', '反': '友', '屁': '友'}
         },
         action: async function ({ocrResult}) {
-            if (!gameInfo.isPublicRecruitEnd)
-                await clickByHrOcrResultAndText(ocrResult, ['公开招募', '公开募']);
-            else if (!gameInfo.isPurchaseEnd) {
-                await clickByHrOcrResultAndText(ocrResult, '采购中心');
+            const whichTask =  getOneTaskToRun()
+            if(whichTask){
+                const dict = {
+                    publicRecruit:['公开招募', '公开募'],
+                    purchase:'采购中心',
+                    friendHome:'好友',
+                }
+                await clickByHrOcrResultAndText(ocrResult, dict[whichTask]);
             }
         }
     },
@@ -443,15 +447,13 @@ const purchase: Router = [
     {
         describe: '采购中心_信用交易所,购买物品弹框',
         keywords: {
-            include: [['急购买物品', '购买物品'], '售价','商品内容'],
+            include: [['急购买物品', '购买物品'], '售价', '商品内容'],
             exclude: ['信用不足，无法购买'],
         },
         action: async function () {
             await purchaseBuy()
         }
     },
-]
-const other: Router = [
     {
         describe: '获得物资的modal反馈框',
         keywords: {
@@ -463,12 +465,87 @@ const other: Router = [
     },
 ]
 
-const gameRouter = [
+
+// 好友列表，访问基建
+const friendHome: Router = [
+    {
+        describe: '个人名片界面',
+        keywords: {
+            include: ['好友列表', '添加好友', '助战干员'],
+            exclude: ['最近登录时间']
+        },
+        action: async function ({ocrResult}) {
+            await clickByHrOcrResultAndText(ocrResult, '好友列表');
+        }
+    },
+    {
+        describe: '好友列表',
+        keywords: {
+            include: ['最近登录时间', ['访问基建|查看名片', '访问基建查看名片'], '添加好友', '助战干员', '好友列表'],
+        },
+        action: async function ({ocrResult}) {
+            const item = ocrResult.find(item => item.text === '访问基建查看名片' || item.text === '访问基建|查看名片') as HrOcrResultItem
+            // 字连在一起了 所以点击左上角坐标
+            console.log('点击访问基建')
+            await clickPlus({x: item.x1, y: item.y1})
+        }
+    },
+    {
+        describe: '好友会客室',
+        keywords: {
+            include: ['访问下位', '线索传递'],
+        },
+        action: async function ({ocrResult, capture}) {
+            // 如果访问下位右下角底色是黑色的，说明已经访问完了
+            const item = ocrResult.find(item => item.text === '访问下位') as HrOcrResultItem
+            const x = item.x2 - item.x1 / 4;
+            const y = item.y2
+            if (detectsColor(capture, Color.parse('#181818'), x, y, {threshold: 50})) {
+                console.log('点击访问下位')
+                await clickPlus({x, y})
+            } else {
+                console.log('好友会客室已经全部访问完毕')
+                gameInfo.isFriendHomeEnd = true
+            }
+        }
+    },
+]
+
+const baseRouter = [
     ...main,
-    ...publicRecruit,
-    ...purchase,
-    ...other,
 ]
 
 
-export default gameRouter
+/**
+ * 从没完成的任务里面找一个开始。
+ */
+const getOneTaskToRun = () => {
+    if (!gameInfo.isPublicRecruitEnd){
+        return 'publicRecruit'
+    } else if (!gameInfo.isPurchaseEnd) {
+        return 'purchase'
+    } else if (!gameInfo.isFriendHomeEnd) {
+        return 'friendHome'
+    }else {
+        gameInfo.allDown = true
+    }
+}
+
+/**
+ * 获取路由
+ */
+const getGameRouter = (): Router | void => {
+    const whichTask =  getOneTaskToRun()
+    if(whichTask){
+        const dict = {
+            publicRecruit:[...baseRouter, ...publicRecruit],
+            purchase:[...baseRouter, ...purchase],
+            friendHome:[...baseRouter, ...friendHome],
+        }
+        return dict[whichTask]
+    }
+}
+
+export {
+    getGameRouter,
+}
