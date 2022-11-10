@@ -500,7 +500,9 @@ const friendHome: Router = [
             const item = ocrResult.find(item => item.text === '访问下位') as HrOcrResultItem
             const x = item.x2 - item.x1 / 4;
             const y = item.y2
-            if (detectsColor(capture, Color.parse('#181818'), x, y, {threshold: 50})) {
+            const stillMore = !detectsColor(capture, Color.parse('#181818'), x, y, {threshold: 50})
+            // 橘色的访问下位
+            if (stillMore) {
                 console.log('点击访问下位')
                 await clickPlus({x, y})
             } else {
