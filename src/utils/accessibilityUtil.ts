@@ -16,6 +16,8 @@ import {click} from "accessibility";
 import {findColorSync, Image, readImage, matchFeatures} from "image";
 import {Color} from "color";
 import {deviceInfo} from "@/state";
+import {addWeeklyTask} from "work_manager";
+import {delay} from "lang";
 
 
 /**
@@ -23,7 +25,7 @@ import {deviceInfo} from "@/state";
  * @param  hrOcrResult 文字识别结果
  * @param  text 要点击的文字 , 为数组时候，只要数组中有一个匹配就点击
  */
-async function clickByHrOcrResultAndText(hrOcrResult: HrOcrResult, text: string |string[]): Promise<void> {
+async function clickByHrOcrResultAndText(hrOcrResult: HrOcrResult, text: string | string[]): Promise<void> {
     console.log(`准备点击${text}`);
     let smallPoint = null
     if (Array.isArray(text)) {
@@ -34,7 +36,7 @@ async function clickByHrOcrResultAndText(hrOcrResult: HrOcrResult, text: string 
                 break
             }
         }
-    }else {
+    } else {
         smallPoint = getHrOcrResultItemPointByText(hrOcrResult, text)
     }
     if (smallPoint) {
@@ -71,6 +73,7 @@ async function clickCenter(): Promise<void> {
     await click(x, y)
     console.log(`点击屏幕中间成功,坐标为${x},${y}`);
 }
+
 /**
  * @description 点击屏幕中间偏下的位置 ，坐标无意义，只是为了点击屏幕取消弹框反馈
  */
@@ -127,10 +130,9 @@ async function clickCircleClose(capture: Image): Promise<void> {
  */
 async function clickHome() {
     console.log('点击主页按钮');
-    // x 346/1882 = 0.1839
     const x = deviceInfo.longSide as number * 0.1839
-    // y 64/1059 = 0.0604
-    const y = deviceInfo.shortSide as number * 0.0604
+    // y 55/980=0.0561
+    const y = deviceInfo.shortSide as number * 0.0561
     console.log(`主页按钮坐标为x:${x},y:${y}`);
     await click(x, y)
 }
@@ -139,13 +141,29 @@ async function clickHome() {
  * @description 根据小图坐标点击大图坐标
  * @param smallPoint
  */
-async function clickPlus(smallPoint:Point){
+async function clickPlus(smallPoint: Point) {
     const {x, y} = calOriginalPoint(smallPoint.x, smallPoint.y)
     await click(x, y)
     console.log(`点击了坐标${x},${y}`)
 }
 
+/**
+ * 点击家按钮，再点击首页
+ */
+async function backHomePage() {
+    await clickHome()
+    // 等待下拉动画
+    await delay(1000)
+    const x = 0.0733 * (deviceInfo.longSide as number)
+    const y = 0.389 * (deviceInfo.shortSide as number)
+    console.log(`点击首页`);
+    await click(x, y)
+    console.log(`点击了坐标${x},${y}`);
+
+}
+
 export {
+    backHomePage,
     clickCenterBottom,
     clickByHrOcrResultAndText,
     clickByColor,

@@ -4,6 +4,7 @@
 import {HrOcrResult, HrOcrResultItem} from "@/utils/ocrUtil";
 import {detectsColor, Image} from "image";
 import {
+    backHomePage,
     clickBack,
     clickByColor,
     clickByHrOcrResultAndText,
@@ -138,9 +139,9 @@ const main: Router = [
     {
         describe: '明日方舟主界面',
         keywords: {
-            // 采购中心-- 来购中己  干员寻访--下员寻访  好友--好反 好友--好屁
+            // 采购中心-- 来购中己  干员寻访--下员寻访  好友--好反 好友--好屁 好友--好龙
             include: ['档案', '采购中心', ['公开招募', '公开募'], '干员寻访', '任务', '基建', '好友'],
-            ocrFix: {'来': '采', '下': '干', '己': '心', '反': '友', '屁': '友'}
+            ocrFix: {'来': '采', '下': '干', '己': '心', '反': '友', '屁': '友','龙':'友'}
         },
         action: async function ({ocrResult}) {
             const whichTask =  getOneTaskToRun()
@@ -442,6 +443,9 @@ const purchase: Router = [
         },
         action: async function () {
             gameInfo.isPurchaseEnd = true
+            // 左上角点击返回
+            console.log('点击左上角返回');
+            await clickBack()
         }
     },
     {
@@ -508,6 +512,7 @@ const friendHome: Router = [
             } else {
                 console.log('好友会客室已经全部访问完毕')
                 gameInfo.isFriendHomeEnd = true
+                await backHomePage()
             }
         }
     },
