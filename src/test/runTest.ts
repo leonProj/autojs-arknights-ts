@@ -17,7 +17,7 @@ const { accessibility} = require('accessibility');
  * @returns {*}
  */
 function ocrFix(str,ocrFixDict){
-    const regStr = Object.keys(ocrFixDict).join('')
+    const regStr = `[${Object.keys(ocrFixDict).join('')}]`
     const reg = new RegExp(regStr,'g')
     return str.replace(reg,function(match){
         return ocrFixDict[match]
@@ -45,9 +45,9 @@ async function run() {
 
     while (true) {
         // 公招流程
-        if(gameInfo.isPublicRecruitEnd){
+        if(gameInfo.isPurchaseEnd){
             showToast('运行结束');
-            alert(`公招流程结束`);
+            alert(`流程结束`);
             break;
         }
 
@@ -114,7 +114,7 @@ async function run() {
         capture.recycle()
 
 
-        if ( count>6) {
+        if ( count>5) {
             console.log(`连续${count}次未找到路由，结束运行`)
             capturer.stop()
             showToast('运行结束');

@@ -3,8 +3,7 @@
  */
 
 import {deviceInfo} from "@/state";
-import {checkInit} from "@/utils/checkUtil";
-import {HrOcrResult} from "@/utils/ocrUtil";
+import {HrOcrResult, HrOcrResultItem} from "@/utils/ocrUtil";
 // @ts-ignore matchFeatures类型声明没写
 import {Image, matchFeatures, readImage, Region} from "image";
 
@@ -33,7 +32,6 @@ export interface GetPointByFeaturesOption {
  * @param smallY 小图中的y坐标
  */
 function calOriginalPoint(smallX: number, smallY: number): Point {
-    checkInit()
     const originalX = deviceInfo.longSide as number / (deviceInfo.smallWidth as number) * smallX
     const originalY = deviceInfo.shortSide as number / (deviceInfo.smallHeight as number) * smallY
     return {x: originalX, y: originalY}
@@ -45,10 +43,10 @@ function calOriginalPoint(smallX: number, smallY: number): Point {
  * @param text 指定文字
  * @returns 找到返回坐标，找不到返回null
  */
-function getHrOcrResultItemPointByText(hrOcrResult: HrOcrResult, text: string): Point | null {
+function getHrOcrResultItemPointByText(hrOcrResult: HrOcrResult, text: string): HrOcrResultItem | null {
     let item = hrOcrResult.find(item => item.text === text)
     if (item) {
-        return {x: item.x, y: item.y}
+        return item
     } else {
         console.log(`hrOcrResult数组中未找到text值为【${text}】的item`)
         console.log('hrOcrResult数组为', hrOcrResult)

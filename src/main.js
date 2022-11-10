@@ -5,6 +5,8 @@ const path = require('path');
 const app = require('app');
 const { foregroundService } = require('settings');
 const { showDialog } = require("dialogs");
+const {showToast} = require("toast");
+const {getRunningEngines, stopAll} = require("engines");
 
 // Web文件夹
 const webRoot = path.join(__dirname, 'web');
@@ -71,6 +73,30 @@ class WebActivity extends ui.Activity {
             console.log(`${path.basename(msg.sourceId())}:${msg.lineNumber()}: ${msg.message()}`);
         });
         const jsBridge = webview.jsBridge;
+
+
+
+
+        jsBridge.handle('start', () => {
+            setInterval(() => {
+                showToast('Hello, world!');
+            },1000)
+        });
+        jsBridge.handle('getS', () => {
+            getRunningEngines().forEach((e) => {
+                console.log(e.id);
+            })
+        });
+        jsBridge.handle('stopAll', () => {
+            stopAll();
+        });
+
+
+
+
+
+
+
         // 处理来自web的请求
         // 处理读取本地文件的请求
         jsBridge.handle('fetch', async (event, args) => {

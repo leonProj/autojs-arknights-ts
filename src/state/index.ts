@@ -39,9 +39,14 @@ interface DeviceInfo {
  */
 interface GameInfo {
     /**
-     * @Description: 是否公招结束
+     * @Description: 是否公招结束 默认false
      */
     isPublicRecruitEnd: boolean;
+
+    /**
+     * 是否采购中心结束。默认false
+     */
+    isPurchaseEnd:boolean
 }
 
 
