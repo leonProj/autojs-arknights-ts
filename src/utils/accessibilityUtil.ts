@@ -8,10 +8,10 @@ import {
     calOriginalPoint,
     getHrOcrResultItemPointByText,
     getPointByFeatures,
-    GetPointByFeaturesOption,
+    GetPointByFeaturesOption, getPointByFeaturesPath,
     Point
 } from "@/utils/point";
-import {click} from "accessibility";
+import {click, swipe} from "accessibility";
 // @ts-ignore
 import {findColorSync, Image, readImage, matchFeatures} from "image";
 import {Color} from "color";
@@ -59,7 +59,7 @@ async function clickByColor(capture: Image, hexColor: string): Promise<void> {
     if (smallPoint) {
         await clickPlus(smallPoint)
     } else {
-        console.log(`未在图中找到${hexColor}颜色`);
+        console.log(`失败，未在图中找到${hexColor}颜色`);
     }
 }
 
@@ -93,7 +93,7 @@ async function clickCenterBottom(): Promise<void> {
  */
 async function clickByFeatures(capture: Image, path: string, option: GetPointByFeaturesOption = {scale: 0.7}): Promise<void> {
     console.log(`准备点击全分辨率找图坐标,图片路径为${path}`);
-    const smallPoint = await getPointByFeatures(capture, path, option)
+    const smallPoint = await getPointByFeaturesPath(capture, path, option)
     if (smallPoint) {
         console.log(`全分辨率找图坐标找到了准备点击`);
         await clickPlus(smallPoint)
@@ -162,7 +162,33 @@ async function backHomePage() {
 
 }
 
+/**
+ * @description 通用点击确认弹框的红色钩号按钮
+ */
+async function clickRedConFirm(capture:Image){
+    console.log('点击红色确定按钮');
+    await clickByColor(capture, '#791B1B')
+}
+
+/**
+ * @description 滑动plus 计算原始大图中的坐标
+ * @param x1
+ * @param y1
+ * @param x2
+ * @param y2
+ * @param duration
+ */
+async function  swipePlus (x1: number, y1: number, x2: number, y2: number, duration: number){
+    const start = calOriginalPoint(x1, y1)
+    const end = calOriginalPoint(x2,y2)
+    console.log(`从${start.x},${start.y}滑动到${end.x},${end.y}`);
+    await swipe(start.x,start.y,end.x,end.y,duration)
+
+}
+
 export {
+    swipePlus,
+    clickRedConFirm,
     backHomePage,
     clickCenterBottom,
     clickByHrOcrResultAndText,

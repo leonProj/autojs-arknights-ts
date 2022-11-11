@@ -2,20 +2,21 @@
  * @file 路由，各个页面的判断以及处理逻辑
  */
 import {HrOcrResult, HrOcrResultItem} from "@/utils/ocrUtil";
-import {detectsColor, Image} from "image";
+import {detectsColor, Image, readImage} from "image";
 import {
     backHomePage,
     clickBack,
-    clickByColor,
+    clickByColor, clickByFeatures,
     clickByHrOcrResultAndText,
     clickCenter, clickCenterBottom,
-    clickCircleClose, clickPlus
+    clickCircleClose, clickPlus, clickRedConFirm, swipePlus
 } from "@/utils/accessibilityUtil";
 import {delay} from "lang";
 import {tag, Tags, tags4, tags5, tags6} from "@/constant/tag";
 import {deviceInfo, gameInfo} from "@/state";
 import {Color} from "color";
-import {click} from "accessibility";
+import {click, swipe} from "accessibility";
+import {getPointByFeatures} from "@/utils/point";
 
 type Router = RouterItem[]
 
@@ -79,6 +80,29 @@ interface RouterActionParam {
 
 }
 
+/**
+ * 任务字典
+ */
+const TASK_DICT = {
+    publicRecruit: {
+        key: 'publicRecruit',
+        text: ['公开招募', '公开募'],
+    },
+    purchase: {
+        key: 'purchase',
+        text: '采购中心',
+    },
+    friendHome: {
+        key: 'friendHome',
+        text: '好友',
+    },
+    construction: {
+        key: 'construction',
+        text: '基建',
+    }
+}
+
+
 const main: Router = [
     {
         describe: '雷电模拟器主界面',
@@ -141,17 +165,13 @@ const main: Router = [
         keywords: {
             // 采购中心-- 来购中己  干员寻访--下员寻访  好友--好反 好友--好屁 好友--好龙
             include: ['档案', '采购中心', ['公开招募', '公开募'], '干员寻访', '任务', '基建', '好友'],
-            ocrFix: {'来': '采', '下': '干', '己': '心', '反': '友', '屁': '友','龙':'友'}
+            ocrFix: {'来': '采', '下': '干', '己': '心', '反': '友', '屁': '友', '龙': '友'}
         },
         action: async function ({ocrResult}) {
-            const whichTask =  getOneTaskToRun()
-            if(whichTask){
-                const dict = {
-                    publicRecruit:['公开招募', '公开募'],
-                    purchase:'采购中心',
-                    friendHome:'好友',
-                }
-                await clickByHrOcrResultAndText(ocrResult, dict[whichTask]);
+            const whichTask = getOneTaskToRun()
+            if (whichTask) {
+                // @ts-ignore
+                await clickByHrOcrResultAndText(ocrResult, TASK_DICT[whichTask].text);
             }
         }
     },
@@ -318,8 +338,7 @@ const publicRecruit: Router = [
             include: ['是否消耗1次联络机会？'],
         },
         action: async function ({capture}) {
-            console.log('根据颜色点击确定');
-            await clickByColor(capture, '#791B1B')
+            await clickRedConFirm(capture)
         }
     },
     {
@@ -334,8 +353,6 @@ const publicRecruit: Router = [
             // 左上角点击返回
             console.log('点击左上角返回');
             await clickBack()
-
-
         }
     },
 ]
@@ -518,22 +535,274 @@ const friendHome: Router = [
     },
 ]
 
+// 基建
+const construction: Router = [
+    {
+        describe: '是否确认离开罗德岛基建确认弹框',
+        keywords: {
+            include: ['是否确认离开罗德岛基建'],
+        },
+        action: async function ({capture}) {
+            await clickRedConFirm(capture)
+        }
+    },
+    {
+        describe: '基建页面',
+        keywords: {
+            include: ['进驻总览'],
+            exclude: ['蓝图预览']
+        },
+        action: async function ({ocrResult, capture}) {
+            // 如果批量操作没做，就点击小铃铛 走批量流程
+            if (!gameInfo.isConstructionBatchEnd) {
+                const x = 0.952 * (deviceInfo.longSide as number)
+                const y = 0.129 * (deviceInfo.shortSide as number)
+                await click(x, y)
+            }
+            // 否则就点击进驻总览走替换干员流程
+            else {
+                await clickByHrOcrResultAndText(ocrResult, '进驻总览')
+            }
+        }
+    },
+    {
+        describe: '基建_点击铃铛后批量收菜界面_有可收获',
+        keywords: {
+            include: ['可收获'],
+        },
+        action: async function ({ocrResult}) {
+            await clickByHrOcrResultAndText(ocrResult, '可收获')
+        }
+    },
+    {
+        describe: '基建_点击铃铛后批量收菜界面_有订单交付',
+        keywords: {
+            include: ['订单交付'],
+        },
+        action: async function ({ocrResult}) {
+            await clickByHrOcrResultAndText(ocrResult, '订单交付')
+        }
+    },
+    {
+        describe: '基建_点击铃铛后批量收菜界面_有干员信赖',
+        keywords: {
+            include: ['干员信赖'],
+        },
+        action: async function ({ocrResult}) {
+            await clickByHrOcrResultAndText(ocrResult, '干员信赖')
+        }
+    },
+    {
+        describe: '基建_点击铃铛后批量收菜界面_订单交付，干员信赖，可收获都没有',
+        // 路由有顺序，上面三个路由没有才会到这里，所以这里不需要加exclude字段
+        keywords: {
+            include: ['待办事项'],
+        },
+        action: async function ({ocrResult}) {
+            gameInfo.isConstructionBatchEnd = true
+            // 点击空白处 取消批量操作的界面
+            await clickCenter()
+        }
+    },
+    {
+        describe: '基建_进驻总览界面',
+        keywords: {
+            include: ['蓝图预览'],
+        },
+        action: async function ({ocrResult, capture}) {
+            // 所有的建筑  name：名称  num：所需人员数量
+            const buildings = [
+                {
+                    name: '控制中枢',
+                    num: 5,
+                },
+                {
+                    name: '训练室',
+                    num: 1,
+                },
+                {
+                    name: '会客室',
+                    num: 2,
+                },
+                {
+                    name: '贸易站',
+                    num: 3,
+                }, {
+                    name: '制造站',
+                    num: 3,
+                }, {
+                    name: '发电站',
+                    num: 1,
+                }, {
+                    name: '宿舍',
+                    num: 5,
+                }, {
+                    name: '加工站',
+                    num: 1
+                }, {
+                    name: '办公室',
+                    num: 1,
+                }, {
+                    name: '训练室',
+                    num: 1,
+                }]
+            // 过滤出所有的建筑
+            const ocrFilterResult = ocrResult.filter(ocrItem => {
+                return buildings.some((building) => {
+                    return ocrItem.text.includes(building.name)
+                })
+            })
+            // 一行方框的高度为建筑名称文字的高度的4倍
+            const lineHeight = (ocrFilterResult[0].y2 - ocrFilterResult[0].y1) * 4
+            let smallPicFeatures = null;
+            let smallPic = null;
+            // 是否有一个建筑需要换
+            let isThereOneBuildingNeedChange = false
+            for (const ocrFilterItem of ocrFilterResult) {
+
+                console.log(`看看${ocrFilterItem.text}要不要换班`)
+                // 方框底部y最大坐标
+                const lineMaxY = ocrFilterItem.y1 + lineHeight
+                /* 看看这行方框的ocr结果中有没有注意力涣散的干员 (注意力澳散 注意力涣散) */
+                const needTurn = ocrResult.filter(ocrItem => {
+                    return ocrItem.y1 < lineMaxY && ocrItem.y1 > ocrFilterItem.y1 && ocrItem.text.includes('注意力')
+                })
+
+                /* 看看这行有没有空着的加号按钮 */
+                if (!smallPic) {
+                    smallPic = await readImage(`${deviceInfo.pathDir}/img/whitePlus.png`);
+                }
+                if (!smallPicFeatures) {
+                    // @ts-ignore
+                    smallPicFeatures = await smallPic.detectAndComputeFeatures();
+                }
+                const isThereEmptyPlus = await getPointByFeatures(capture, smallPicFeatures, {scale: 0.5})
+
+
+                // 如果需要换班
+                if (needTurn.length > 0 && isThereEmptyPlus) {
+                    isThereOneBuildingNeedChange = true
+                    console.log(`${ocrFilterItem.text}有人涣散了，要换班`)
+                    // @ts-ignore
+                    // 这个建筑总共需要几个人
+                    const peopleNum = buildings.find(building => {
+                        return ocrFilterItem.text.includes(building.name)
+                    }).num
+                    console.log(`${ocrFilterItem.text}需要${peopleNum}个人`)
+                    // 这个建筑已经有几个人
+                    const peopleNumNow = needTurn.length
+                    console.log(`${ocrFilterItem.text}现在有${peopleNumNow}个人`)
+                    // 就随意点击涣散的干员坐标，
+                    console.log(`点击${ocrFilterItem.text}涣散的干员坐标`)
+                    await clickPlus({x: needTurn[0].x, y: needTurn[0].y})
+                    // 延迟一下，等待淡出动画
+                    await delay(800)
+                    // 清空选择按钮位置
+                    const clearBtnX = 0.39 * (deviceInfo.longSide as number)
+                    const clearBtnY = 0.94 * (deviceInfo.shortSide as number)
+                    //确认按钮
+                    const confirmBtnX = 0.92 * (deviceInfo.longSide as number)
+                    const confirmBtnY = clearBtnY
+                    // 行列坐标对象
+                    const locationObj = {
+                        row1: 0.3 * (deviceInfo.shortSide as number),
+                        row2: 0.7 * (deviceInfo.shortSide as number),
+                        column1: 0.375 * (deviceInfo.longSide as number),
+                        column2: 0.495 * (deviceInfo.longSide as number),
+                        column3: 0.6 * (deviceInfo.longSide as number),
+                        column4: 0.72 * (deviceInfo.longSide as number),
+                        column5: 0.83 * (deviceInfo.longSide as number)
+                    }
+                    // 行列坐标数组
+                    const rowNum = 2
+                    const columnNum = 5
+                    const locationArr = []
+                    for (let i = 1; i <= columnNum; i++) {
+                        for (let j = 1; j <= rowNum; j++) {
+                            locationArr.push({
+                                // @ts-ignore
+                                x: locationObj[`column${i}`],
+                                // @ts-ignore
+                                y: locationObj[`row${j}`]
+                            })
+                        }
+                    }
+
+                    // 点击清空按钮
+                    await click(clearBtnX, clearBtnY)
+                    // 替换干员
+                    const start = peopleNumNow
+                    const end = peopleNum + peopleNumNow
+                    for (let i = start; i <= end; i++) {
+                        // 点击干员
+                        await click(locationArr[i].x, locationArr[i].y)
+                    }
+
+                    // 点击确认按钮
+                    await click(confirmBtnX, confirmBtnY)
+                    console.log(`${ocrFilterItem.text}换班完毕`)
+                    gameInfo.isConstructionEnd = true
+                    break
+                }
+                console.log(`${ocrFilterItem.text}不需要换班`)
+            }
+
+            // 回收特征图片和对象
+            smallPic && smallPic.recycle()
+            smallPicFeatures && smallPicFeatures.recycle()
+
+            // 如果没有一个建筑需要换班
+            if (!isThereOneBuildingNeedChange) {
+                // 滚动条在末端时候的位置 和 颜色
+                const scrollColorKey = '#69696c'
+                const scrollX = 0.979 * (deviceInfo.smallWidth as number)
+                const scrollY = 0.914 * (deviceInfo.smallHeight as number)
+                console.log(capture.pixel(scrollX, scrollY))
+                // 判断是否滚动条到底部
+                const isScrollEnd = detectsColor(capture, Color.parse(scrollColorKey), scrollX, scrollY, {threshold: 50})
+
+                if (isScrollEnd) {
+                    console.log('滚动条到底了，基建流程结束了')
+                    // 基建流程结束
+                    gameInfo.isConstructionEnd = true
+                } else {
+                    console.log('准备滚动')
+                    if (ocrFilterResult.length < 3) {
+                        console.log('少于3个建筑，ocr可能识别错误，重新识别');
+                    } else {
+                        // 建筑名称文字的两遍高度
+                        const lineHeight = (ocrFilterResult[0].y2 - ocrFilterResult[0].y1)
+                        // 滑动起点
+                        const start = {x: ocrFilterResult[2].x1, y: ocrFilterResult[2].y1}
+                        // 滑动终点
+                        const end = {x: ocrFilterResult[0].x1, y: ocrFilterResult[0].y1 - lineHeight}
+                        // 滑动
+                        await swipePlus(start.x, start.y, end.x, end.y, 1000)
+                        // 滚动后的延迟
+                        await delay(1000);
+                    }
+                }
+            }
+        }
+    },
+]
+
 const baseRouter = [
     ...main,
 ]
-
-
 /**
  * 从没完成的任务里面找一个开始。
  */
 const getOneTaskToRun = () => {
-    if (!gameInfo.isPublicRecruitEnd){
-        return 'publicRecruit'
+    if (!gameInfo.isPublicRecruitEnd) {
+        return TASK_DICT.publicRecruit.key
     } else if (!gameInfo.isPurchaseEnd) {
-        return 'purchase'
+        return TASK_DICT.purchase.key
     } else if (!gameInfo.isFriendHomeEnd) {
-        return 'friendHome'
-    }else {
+        return TASK_DICT.friendHome.key
+    } else if (!gameInfo.isConstructionEnd) {
+        return TASK_DICT.construction.key
+    } else {
         gameInfo.allDown = true
     }
 }
@@ -542,14 +811,24 @@ const getOneTaskToRun = () => {
  * 获取路由
  */
 const getGameRouter = (): Router | void => {
-    const whichTask =  getOneTaskToRun()
-    if(whichTask){
+    const whichTask = getOneTaskToRun()
+    if (whichTask) {
         const dict = {
-            publicRecruit:[...baseRouter, ...publicRecruit],
-            purchase:[...baseRouter, ...purchase],
-            friendHome:[...baseRouter, ...friendHome],
+            publicRecruit: [...baseRouter, ...publicRecruit],
+            purchase: [...baseRouter, ...purchase],
+            friendHome: [...baseRouter, ...friendHome],
+            construction: [...baseRouter, ...construction]
         }
-        return dict[whichTask]
+
+        // @ts-ignore
+        const key = TASK_DICT[whichTask].key
+        // @ts-ignore
+        const router = dict[key]
+        if (router) {
+            return router
+        } else {
+            console.error(`没有找到匹配的任务路由列表[${key}]`)
+        }
     }
 }
 

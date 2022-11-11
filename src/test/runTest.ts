@@ -6,6 +6,8 @@ import {init} from '@/utils/commonUtil';
 import {captureAndClip} from "@/utils/imageUtil";
 import {hrOcr} from "@/utils/ocrUtil";
 import {showAlertDialog} from "dialogs";
+import {writeImage} from "image";
+import path from "path";
 const { requestScreenCapture } = require('media_projection');
 const plugins = require('plugins');
 const { accessibility} = require('accessibility');
@@ -109,6 +111,10 @@ async function run() {
         if(notFound){
             count ++
             console.log('未找到匹配的路由');
+            // 保存
+            const currTime = new Date().getTime();
+            const savePath = path.join(__dirname,`../test/img/nofFound-${currTime}.jpg`)
+            await writeImage(capture,savePath)
         }
 
         // 回收截图对象

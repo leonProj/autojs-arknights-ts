@@ -69,7 +69,7 @@ function getHrOcrResultItemPointByText(hrOcrResult: HrOcrResult, text: string): 
  * @see https://pro.autojs.org/docs/zh/v9/generated/classes/image.Image.html#detectandcomputefeatures
  */
 
-async function getPointByFeatures(capture: Image, path: string, option: GetPointByFeaturesOption = {scale: 0.8}): Promise<Point | null> {
+async function getPointByFeaturesPath(capture: Image, path: string, option: GetPointByFeaturesOption = {scale: 0.8}): Promise<Point | null> {
     console.log(`全分辨率找图开始,图片路径为${path}`);
     let start = Date.now();
     let smallPic = await readImage(path);
@@ -85,22 +85,51 @@ async function getPointByFeatures(capture: Image, path: string, option: GetPoint
     smallPicFeatures.recycle();
     let end = Date.now();
     console.log(`全分辨率找图时间: ${end - start}ms`);
-    console.log('全分辨率找图结果:',result)
+    console.log('全分辨率找图结果:', result)
     if (result) {
-        const {topLeft,bottomRight} = result
-        const centerX = (topLeft.x + bottomRight.x) / 2
-        const centerY = (topLeft.y + bottomRight.y) / 2
-        console.log(`全分辨率找图成功,中心点坐标为${centerX},${centerY}`);
-        return {x: centerX, y: centerY}
+        const x = result.center.x
+        const y = result.center.y
+        console.log(`全分辨率找图成功,中心点坐标为${x},${y}`);
+        return {x, y}
     } else {
         console.log(`全分辨率找图失败,未匹配图片${path}`);
         return null
     }
 }
 
+/**
+ * 全分辨率找图，与上面的方法不同的是，第二个参数需要传递特征对象。这个方法是为了提高效率，避免重复计算特征
+ * @param capture
+ * @param smallPicFeatures
+ * @param option
+ */
+async function getPointByFeatures(capture: Image, smallPicFeatures:any, option: GetPointByFeaturesOption = {scale: 0.8}): Promise<Point | null> {
+    let start = Date.now();
+    //@ts-ignore detectAndComputeFeatures类型声明没写
+    let captureFeatures = await capture.detectAndComputeFeatures(option);
+    // 特征匹配
+    let result = await matchFeatures(captureFeatures, smallPicFeatures);
+    // 回收特征对象
+    captureFeatures.recycle();
+    let end = Date.now();
+    console.log(`全分辨率找图时间: ${end - start}ms`);
+    console.log('全分辨率找图结果:', result)
+    if (result) {
+        const x = result.center.x
+        const y = result.center.y
+        console.log(`全分辨率找图成功,中心点坐标为${x},${y}`);
+        return {x, y}
+    } else {
+        console.log(`全分辨率找图失败`);
+        return null
+    }
+}
+
+
 
 export {
     calOriginalPoint,
     getHrOcrResultItemPointByText,
-    getPointByFeatures
+    getPointByFeatures,
+    getPointByFeaturesPath
 }
