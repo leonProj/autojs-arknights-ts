@@ -514,18 +514,20 @@ const friendHome: Router = [
     {
         describe: '好友会客室',
         keywords: {
-            include: ['访问下位', '线索传递'],
+            include: ['线索传递'],
         },
-        action: async function ({ocrResult, capture}) {
-            // 如果访问下位右下角底色是黑色的，说明已经访问完了
-            const item = ocrResult.find(item => item.text === '访问下位') as HrOcrResultItem
-            const x = item.x2 - item.x1 / 4;
-            const y = item.y2
-            const stillMore = !detectsColor(capture, Color.parse('#181818'), x, y, {threshold: 50})
+        action: async function ({capture}) {
+            // 访问下位按钮坐标x
+            const nextBtnX = 0.977 * (deviceInfo.smallWidth as number)
+            // 访问下位按钮坐标y
+            const nextBtnY = 0.917 * (deviceInfo.smallHeight as number)
+            // 访问下位按钮激活状态下的底色
+            const enableColor = '#d15806'
+            const stillMore = detectsColor(capture, Color.parse(enableColor), nextBtnX, nextBtnY, {threshold: 50})
             // 橘色的访问下位
             if (stillMore) {
                 console.log('点击访问下位')
-                await clickPlus({x, y})
+                await clickPlus({x: nextBtnX, y: nextBtnY})
             } else {
                 console.log('好友会客室已经全部访问完毕')
                 gameInfo.isFriendHomeEnd = true
