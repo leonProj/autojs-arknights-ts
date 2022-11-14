@@ -111,10 +111,6 @@ async function run() {
         if(notFound){
             count ++
             console.log('未找到匹配的路由');
-            // 保存
-            const currTime = new Date().getTime();
-            const savePath = path.join(__dirname,`../test/img/nofFound-${currTime}.jpg`)
-            await writeImage(capture,savePath)
         }
 
         // 回收截图对象
