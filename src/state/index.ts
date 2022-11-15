@@ -88,7 +88,7 @@ const gameInfo: GameInfo = {
     isPurchaseEnd:true,
     isFriendHomeEnd:true,
     isConstructionEnd:false,
-    isConstructionBatchEnd:true,
+    isConstructionBatchEnd:false,
     allDown:false,
 }
 

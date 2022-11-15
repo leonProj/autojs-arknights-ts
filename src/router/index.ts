@@ -640,9 +640,22 @@ const construction: Router = [
         action: async function ({ocrResult, capture}) {
             // 如果批量操作没做，就点击小铃铛 走批量流程
             if (!gameInfo.isConstructionBatchEnd) {
+                console.log('点击小铃铛');
+                // 小图中铃铛的坐标
+                const smallX = 0.952 * (deviceInfo.smallWidth as number)
+                const smallY = 0.129 * (deviceInfo.smallHeight as number)
+                // 原图中铃铛的坐标
                 const x = 0.952 * (deviceInfo.longSide as number)
-                const y = 0.129 * (deviceInfo.shortSide as number)
-                await click(x, y)
+                const warningColor = Color.parse('#cb4d54')
+                // 有红色感叹号的时候，铃铛是在感叹号的下面
+                if(detectsColor(capture, warningColor, smallX, smallY, {threshold: 20})) {
+                    console.log('点击感叹号下面的小铃铛');
+                    const y = 0.195 * (deviceInfo.shortSide as number)
+                    await click(x, y)
+                }else{
+                    const y = 0.129 * (deviceInfo.shortSide as number)
+                    await click(x, y)
+                }
             }
             // 否则就点击进驻总览走替换干员流程
             else {
@@ -914,7 +927,7 @@ const construction: Router = [
                     console.log(`${ocrFilterItem.text}有${tiredPeople.length}个人涣散了`)
                     // 训练位是否有人
                     const isTraining = !emptyIndex.some(eIndex => eIndex === 1)
-                    const isStillHelp = emptyIndex.some(eIndex => eIndex === 0)
+                    const isStillHelp = !emptyIndex.some(eIndex => eIndex === 0)
 
                     /**
                      * 训练室换人
