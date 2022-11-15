@@ -745,15 +745,15 @@ const construction: Router = [
                 const exitPeopleIndexArr = []
                 for (const item of ocrResult) {
                     if (item.x < 0.568 * (deviceInfo.smallWidth as number)) {
-                        exitPeopleIndexArr.push(1)
+                        exitPeopleIndexArr.push(0)
                     } else if (item.x < 0.651 * (deviceInfo.smallWidth as number) && item.x > 0.568 * (deviceInfo.smallWidth as number)) {
-                        exitPeopleIndexArr.push(2)
+                        exitPeopleIndexArr.push(1)
                     } else if (item.x < 0.740 * (deviceInfo.smallWidth as number) && item.x > 0.651 * (deviceInfo.smallWidth as number)) {
-                        exitPeopleIndexArr.push(3)
+                        exitPeopleIndexArr.push(2)
                     } else if (item.x < 0.828 * (deviceInfo.smallWidth as number) && item.x > 0.740 * (deviceInfo.smallWidth as number)) {
-                        exitPeopleIndexArr.push(4)
+                        exitPeopleIndexArr.push(3)
                     } else if (item.x > 0.828 * (deviceInfo.smallWidth as number)) {
-                        exitPeopleIndexArr.push(5)
+                        exitPeopleIndexArr.push(4)
                     }
                 }
                 return exitPeopleIndexArr
@@ -849,51 +849,61 @@ const construction: Router = [
                     return ocrItem.y1 < lineMaxY && ocrItem.y1 > ocrFilterItem.y1
                 }
 
+                // 没人工作的在一行中的序号
+                const emptyIndex = getEmptyPeopleIndex()
+                console.log(`${ocrFilterItem.text}有${emptyIndex.length}个位置空着`)
+                console.log(`空着的人员序号：${emptyIndex}`)
+                // @ts-ignore
+                // 这个建筑总共需要几个人
+                const peopleNum = buildings.find(building => {
+                    return ocrFilterItem.text.includes(building.name)
+                }).num
+                console.log(`${ocrFilterItem.text}一共需要${peopleNum}个人`)
+
 
                 // 是宿舍 走宿舍休息流程
                 if (ocrFilterItem.text.includes('宿舍')) {
                     console.log(`看看${ocrFilterItem.text}要不要换人休息`)
-                    /* 看看这行方框的ocr结果中有没有休息中的*/
-                    let stillRest = ocrResult.filter(ocrItem => {
+                    // 正在休息的人数
+                    let stillRestPeople = ocrResult.filter(ocrItem => {
                         return isInThisLine(ocrItem) && ocrItem.text.includes('休息中')
                     })
-                    // 休息排序 按照从左到右的顺序
-                    if (stillRest.length > 0) {
-                        console.log(`${ocrFilterItem.text}有人需要换人休息`)
-                        const peopleNum = 5 // 宿舍需要5人， 就不去上面的buildings里面找了
-                        const stillRestNum = stillRest.length
-                        console.log(`有${stillRestNum}个人正在休息`)
-                        if (peopleNum - stillRestNum === 0) {
-                            console.log(`宿舍人都在休息，不需要换人`)
-                            return
-                        } else {
-                            console.log(`准备换人休息`)
-                            // 计算出休息中的人在进驻概览中的序号  1052/1885 = 0.558   1226/1885 = 0.651    1393/1885 = 0.740 1558/1885 = 0.828
-                            const restPeopleIndex = []
-                            for (const restItem of stillRest) {
-                                if (restItem.x1 < 0.558 * (deviceInfo.longSide as number)) {
-                                    restPeopleIndex.push(1)
-                                } else if (restItem.x1 < 0.651 * (deviceInfo.longSide as number) && restItem.x1 > 0.558 * (deviceInfo.longSide as number)) {
-                                    restPeopleIndex.push(2)
-                                } else if (restItem.x1 < 0.740 * (deviceInfo.longSide as number) && restItem.x1 > 0.651 * (deviceInfo.longSide as number)) {
-                                    restPeopleIndex.push(3)
-                                } else if (restItem.x1 < 0.828 * (deviceInfo.longSide as number) && restItem.x1 > 0.740 * (deviceInfo.longSide as number)) {
-                                    restPeopleIndex.push(4)
-                                } else if (restItem.x1 > 0.828 * (deviceInfo.longSide as number)) {
-                                    restPeopleIndex.push(5)
-                                }
-                            }
-                            // 点击第一个干员进入换人界面，
-                            await enterBuilding()
-
-
+                    console.log(`${ocrFilterItem.text}有${stillRestPeople.length}个人在休息中`)
+                    const stillRestPeopleIndex = getExitPeopleIndex(stillRestPeople)
+                    console.log(`休息中人员序号：${stillRestPeopleIndex}`)
+                    console.log(`实际需要换：${(peopleNum -stillRestPeople.length)}个人`)
+                    // 如果休息人数小于5 或者 空着的人数大于 0 则需要换人
+                    if(stillRestPeople.length<5 || emptyIndex.length>0){
+                        // 点击第一个干员进入换人界面，
+                        await enterBuilding()
+                        // 点击清空按钮
+                        await click(clearBtnX, clearBtnY)
+                        // 换人
+                        const start = peopleNum-emptyIndex.length
+                        const end = start + (peopleNum -stillRestPeople.length)
+                        for (let i = start; i < end; i++) {
+                            // 点击新加的干员
+                            await click(locationArr[i].x, locationArr[i].y)
                         }
+                        // 获取原来休息中中干员的坐标位置
+                        const oldRestPeopleLocationArr = []
+                        for (const index of stillRestPeopleIndex) {
+                            oldRestPeopleLocationArr.push(locationArr[index])
+                        }
+                        // 点击原来休息中的干员
+                        for (const location of oldRestPeopleLocationArr){
+                            await click(location.x, location.y)
+                        }
+                        // 点击确认按钮
+                        await click(confirmBtnX, confirmBtnY)
+                        console.log(`${ocrFilterItem.text}换班完毕`)
+                        gameInfo.isConstructionEnd = true
+                        break
                     }
                 }
                 // 不是宿舍，走涣散换班流程
                 else {
                     console.log(`看看${ocrFilterItem.text}要不要换班`)
-
                     // 注意力涣散的
                     const tiredPeople: HrOcrResult = []
                     // 工作中的
@@ -915,16 +925,7 @@ const construction: Router = [
                     // 工作中的人员在一行中的序号
                     const workingPeopleIndex = getExitPeopleIndex(workingPeople)
                     console.log(`工作中人员序号：${workingPeopleIndex}`)
-                    // 没人工作的在一行中的序号
-                    const emptyIndex = getEmptyPeopleIndex()
-                    console.log(`${ocrFilterItem.text}有${emptyIndex.length}个位置空着`)
-                    console.log(`空着的人员序号：${emptyIndex}`)
-                    // @ts-ignore
-                    // 这个建筑总共需要几个人
-                    const peopleNum = buildings.find(building => {
-                        return ocrFilterItem.text.includes(building.name)
-                    }).num
-                    console.log(`${ocrFilterItem.text}一共需要${peopleNum}个人`)
+
                     // 如果总共需要的和工作中的人数不一样，说明要换班了
                     const needTurnNum = peopleNum - workingPeople.length
                     if (needTurnNum !== 0) {
@@ -935,18 +936,17 @@ const construction: Router = [
                         await enterBuilding()
                         // 点击清空按钮
                         await click(clearBtnX, clearBtnY)
-
                         // 替换干员
-                        const start = tiredPeople.length + workingPeople.length
-                        const end = needTurnNum
+                        const start = peopleNum - emptyIndex.length
+                        const end = start + needTurnNum
                         for (let i = start; i < end; i++) {
                             // 点击新加的干员
                             await click(locationArr[i].x, locationArr[i].y)
                         }
                         // 获取原来工作中干员的坐标位置
                         const oldWorkPeopleLocationArr = []
-                        for (const workingPeopleIndexItem of workingPeopleIndex) {
-                            oldWorkPeopleLocationArr.push(locationArr[workingPeopleIndexItem])
+                        for (const index of workingPeopleIndex) {
+                            oldWorkPeopleLocationArr.push(locationArr[index])
                         }
                         // 点击原来工作中的干员
                         for (const location of oldWorkPeopleLocationArr){
