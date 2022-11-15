@@ -86,9 +86,9 @@ const deviceInfo: DeviceInfo = {
 const gameInfo: GameInfo = {
     isPublicRecruitEnd: true,
     isPurchaseEnd:true,
-    isFriendHomeEnd:true,
-    isConstructionEnd:false,
-    isConstructionBatchEnd:false,
+    isFriendHomeEnd:false,
+    isConstructionEnd:true,
+    isConstructionBatchEnd:true,
     allDown:false,
 }
 

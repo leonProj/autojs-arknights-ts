@@ -175,6 +175,16 @@ const main: Router = [
             }
         }
     },
+    {
+        describe: '正在提交反馈至神经Loading',
+        keywords: {
+            include: ['正在提交反馈至神经'],
+        },
+        action: async function () {
+            console.log('正在提交反馈至神经Loading中不操作');
+            // do nothing
+        }
+    },
 ]
 // todo 公开招募高星tag立即招募
 /*
@@ -598,23 +608,27 @@ const friendHome: Router = [
         keywords: {
             include: ['线索传递'],
         },
-        action: async function ({capture}) {
-            // 访问下位按钮坐标x
-            const nextBtnX = 0.977 * (deviceInfo.smallWidth as number)
-            // 访问下位按钮坐标y
-            const nextBtnY = 0.917 * (deviceInfo.smallHeight as number)
+        action: async function ({capture,ocrResult}) {
             // 访问下位按钮激活状态下的底色
             const enableColor = '#d15806'
-            const stillMore = detectsColor(capture, Color.parse(enableColor), nextBtnX, nextBtnY, {threshold: 50})
-            // 橘色的访问下位
-            if (stillMore) {
-                console.log('点击访问下位')
-                await clickPlus({x: nextBtnX, y: nextBtnY})
+            const nextBtnOcrItem = ocrResult.find(item => item.text === '访问下位')
+            if(nextBtnOcrItem){
+                const oneWordWidth = (nextBtnOcrItem.x2 - nextBtnOcrItem.x2)/4
+                const colorX = nextBtnOcrItem.x2 + oneWordWidth
+                const colorY = nextBtnOcrItem.y2
+                const stillMore = detectsColor(capture, Color.parse(enableColor), colorX, colorY, {threshold: 50})
+                // 橘色的访问下位
+                if (stillMore) {
+                    console.log('点击访问下位')
+                    await clickPlus({x: nextBtnOcrItem.x, y: nextBtnOcrItem.y})
 
-            } else {
-                console.log('好友会客室已经全部访问完毕')
-                gameInfo.isFriendHomeEnd = true
-                await backHomePage()
+                } else {
+                    console.log('好友会客室已经全部访问完毕')
+                    gameInfo.isFriendHomeEnd = true
+                    await backHomePage()
+                }
+            }else {
+                console.log('没有找到访问下位按钮，ocr识别有问题。不做处理')
             }
         }
     },
