@@ -16,7 +16,7 @@ import {tag, Tags, tags4, tags5, tags6} from "@/constant/tag";
 import {deviceInfo, gameInfo} from "@/state";
 import {Color} from "color";
 import {click, swipe} from "accessibility";
-import {getPointByFeatures} from "@/utils/point";
+import {getPointByFeatures, Point} from "@/utils/point";
 
 type Router = RouterItem[]
 
@@ -732,10 +732,16 @@ const construction: Router = [
                     num: 1,
                 }]
             // 过滤出所有的建筑
-            const ocrFilterResult = ocrResult.filter(ocrItem => {
+            let ocrFilterResult = ocrResult.filter(ocrItem => {
                 return buildings.some((building) => {
                     return ocrItem.text.includes(building.name)
                 })
+            })
+            console.log(`一共识别到${ocrFilterResult.length}个建筑`)
+            ocrFilterResult = ocrFilterResult.slice(0, 3)// 只取前三个建筑，第四个建筑可能名字有，但是人物下标没有
+            console.log('只取前三个建筑')
+            ocrFilterResult.forEach((ocrItem, index) => {
+                console.log(`分别为：${index}:${ocrItem.text}`);
             })
             // 一行方框的高度为建筑名称文字的高度的4倍
             const lineHeight = (ocrFilterResult[0].y2 - ocrFilterResult[0].y1) * 4
@@ -766,30 +772,28 @@ const construction: Router = [
                  * 获取一行基建中空位置的序号
                  */
                 const getEmptyPeopleIndex = (): number[] => {
-                    const emptyPeopleIndexArr = []
-                    const y = ocrFilterItem.y2
-                    const plusGreyColor = Color.parse('#898989') // 加号的底色
-                    const x1 = 0.525 * (deviceInfo.smallWidth as number)
-                    const x2 = 0.618 * (deviceInfo.smallWidth as number)
-                    const x3 = 0.707 * (deviceInfo.smallWidth as number)
-                    const x4 = 0.794 * (deviceInfo.smallWidth as number)
-                    const x5 = 0.877 * (deviceInfo.smallWidth as number)
-                    if (detectsColor(capture, plusGreyColor, x1, y, {threshold: 50})) {
-                        emptyPeopleIndexArr.push(1)
+                    const emptyPeopleIndex: number[] = []
+                    const y = ocrFilterItem.y2  // 937/1864 = 0.503
+                    const plusGreyColor = Color.parse('#898989') // 加号的底色 946/1864=0.507    1105/1864 = 0.593
+                    const arr = [
+                        [0.507, 0.525],
+                        [0.593, 0.618],
+                        [0.707, 0.725],
+                        [0.794, 0.812],
+                        [0.877, 0.895],
+                    ]
+                    for (let i = 0; i < arr.length; i++) {
+                        const item = arr[i]
+                        const index = i
+                        // 迷迭香的头发颜色是#7e7e7e，会被误认为是空位置，所以这里用两点底色确定是否是空位置，
+                        const x1 = item[0] * (deviceInfo.smallWidth as number)
+                        const x2 = item[1] * (deviceInfo.smallWidth as number)
+                        if (detectsColor(capture, plusGreyColor, x1, y, {threshold: 20}) && detectsColor(capture, plusGreyColor, x2, y, {threshold: 20})) {
+                            emptyPeopleIndex.push(index)
+                        }
                     }
-                    if (detectsColor(capture, plusGreyColor, x2, y, {threshold: 50})) {
-                        emptyPeopleIndexArr.push(2)
-                    }
-                    if (detectsColor(capture, plusGreyColor, x3, y, {threshold: 50})) {
-                        emptyPeopleIndexArr.push(3)
-                    }
-                    if (detectsColor(capture, plusGreyColor, x4, y, {threshold: 50})) {
-                        emptyPeopleIndexArr.push(4)
-                    }
-                    if (detectsColor(capture, plusGreyColor, x5, y, {threshold: 50})) {
-                        emptyPeopleIndexArr.push(5)
-                    }
-                    return emptyPeopleIndexArr
+
+                    return emptyPeopleIndex
                 }
 
                 // 清空选择按钮位置
@@ -811,7 +815,7 @@ const construction: Router = [
                 // 行列坐标数组
                 const rowNum = 2
                 const columnNum = 5
-                const locationArr = []
+                const locationArr: Point[] = []
                 for (let i = 1; i <= columnNum; i++) {
                     for (let j = 1; j <= rowNum; j++) {
                         locationArr.push({
@@ -861,7 +865,7 @@ const construction: Router = [
                 console.log(`${ocrFilterItem.text}一共需要${peopleNum}个人`)
 
 
-                // 是宿舍 走宿舍休息流程
+                // 宿舍休息流程
                 if (ocrFilterItem.text.includes('宿舍')) {
                     console.log(`看看${ocrFilterItem.text}要不要换人休息`)
                     // 正在休息的人数
@@ -871,16 +875,17 @@ const construction: Router = [
                     console.log(`${ocrFilterItem.text}有${stillRestPeople.length}个人在休息中`)
                     const stillRestPeopleIndex = getExitPeopleIndex(stillRestPeople)
                     console.log(`休息中人员序号：${stillRestPeopleIndex}`)
-                    console.log(`实际需要换：${(peopleNum -stillRestPeople.length)}个人`)
+                    console.log(`实际需要换：${(peopleNum - stillRestPeople.length)}个人`)
                     // 如果休息人数小于5 或者 空着的人数大于 0 则需要换人
-                    if(stillRestPeople.length<5 || emptyIndex.length>0){
+                    if (stillRestPeople.length < peopleNum || emptyIndex.length > 0) {
+                        isThereOneBuildingNeedChange = true
                         // 点击第一个干员进入换人界面，
                         await enterBuilding()
                         // 点击清空按钮
                         await click(clearBtnX, clearBtnY)
                         // 换人
-                        const start = peopleNum-emptyIndex.length
-                        const end = start + (peopleNum -stillRestPeople.length)
+                        const start = peopleNum - emptyIndex.length
+                        const end = start + (peopleNum - stillRestPeople.length)
                         for (let i = start; i < end; i++) {
                             // 点击新加的干员
                             await click(locationArr[i].x, locationArr[i].y)
@@ -891,43 +896,87 @@ const construction: Router = [
                             oldRestPeopleLocationArr.push(locationArr[index])
                         }
                         // 点击原来休息中的干员
-                        for (const location of oldRestPeopleLocationArr){
+                        for (const location of oldRestPeopleLocationArr) {
                             await click(location.x, location.y)
                         }
                         // 点击确认按钮
                         await click(confirmBtnX, confirmBtnY)
                         console.log(`${ocrFilterItem.text}换班完毕`)
-                        gameInfo.isConstructionEnd = true
                         break
+                    } else {
+                        console.log(`${ocrFilterItem.text}不需要换班`)
                     }
                 }
-                // 不是宿舍，走涣散换班流程
+                // 训练室流程
+                else if (ocrFilterItem.text.includes('训练室')) {
+                    // 注意力涣散的
+                    const tiredPeople: HrOcrResult = ocrResult.filter(ocrItem => isInThisLine(ocrItem) && ocrItem.text.includes('注意力'))
+                    console.log(`${ocrFilterItem.text}有${tiredPeople.length}个人涣散了`)
+                    // 训练位是否有人
+                    const isTraining = !emptyIndex.some(eIndex => eIndex === 1)
+                    const isStillHelp = emptyIndex.some(eIndex => eIndex === 0)
+
+                    /**
+                     * 训练室换人
+                     * @param needChange 是否需要换人，false则只是清空
+                     */
+                    const change = async (needChange: boolean = false) => {
+                        isThereOneBuildingNeedChange = true
+                        //进入
+                        await enterBuilding()
+                        // 清空
+                        await click(clearBtnX, clearBtnY)
+                        //换人
+                        if (needChange) {
+                            await click(locationArr[1].x, locationArr[1].y)
+                        }
+                        // 点击确认按钮
+                        await click(confirmBtnX, confirmBtnY)
+                        console.log(`${ocrFilterItem.text}换班完毕`)
+                    }
+
+                    // 如果有人涣散了
+                    if (tiredPeople.length > 0) {
+                        // 训练位有人就换协助位，没人则清空协助位
+                        console.log(`${ocrFilterItem.text}协助位涣散了`)
+                        console.log(`${ocrFilterItem.text}训练位有人就换协助位，没人则清空协助位`)
+                        await change(isTraining)
+                    }
+                    // 没人涣散
+                    else {
+                        // 协助位有人 ,但是没人训练， 也直接清空
+                        if (isStillHelp && !isTraining) {
+                            console.log(`${ocrFilterItem.text}协助位有人 ,但是没人训练， 直接清空`)
+                            await change()
+                        }else {
+                            console.log(`${ocrFilterItem.text}不需要换人`)
+                        }
+                    }
+                }
+                // 普通换班流程
                 else {
                     console.log(`看看${ocrFilterItem.text}要不要换班`)
                     // 注意力涣散的
-                    const tiredPeople: HrOcrResult = []
-                    // 工作中的
-                    const workingPeople: HrOcrResult = []
-                    ocrResult.forEach(ocrItem => {
-                        if (isInThisLine(ocrItem)) {
-                            if (ocrItem.text.includes('注意力')) {
-                                tiredPeople.push(ocrItem)
-                            } else if (ocrItem.text.includes('工作中')) {
-                                workingPeople.push(ocrItem)
-                            }
-                        }
-                    })
+                    const tiredPeople: HrOcrResult = ocrResult.filter(ocrItem => isInThisLine(ocrItem) && ocrItem.text.includes('注意力'))
                     console.log(`${ocrFilterItem.text}有${tiredPeople.length}个人涣散了`)
-                    console.log(`${ocrFilterItem.text}有${workingPeople.length}个人工作中`)
                     // 注意力涣散的人员在一行中的序号
                     const tiredPeopleIndex = getExitPeopleIndex(tiredPeople)
                     console.log(`涣散人员序号：${tiredPeopleIndex}`)
+                    // 工作中的
+                    const workingPeopleNum = peopleNum - tiredPeople.length - emptyIndex.length
+                    console.log(`${ocrFilterItem.text}有${workingPeopleNum}个人工作中`)
                     // 工作中的人员在一行中的序号
-                    const workingPeopleIndex = getExitPeopleIndex(workingPeople)
+                    const workingPeopleIndex = []
+                    for (let i = 0; i < peopleNum; i++) {
+                        // 如果这个序号不在涣散人员序号中，也不在空着的人员序号中，则是工作中的人员的序号
+                        if (!tiredPeopleIndex.includes(i) && !emptyIndex.includes(i)) {
+                            workingPeopleIndex.push(i)
+                        }
+                    }
                     console.log(`工作中人员序号：${workingPeopleIndex}`)
 
                     // 如果总共需要的和工作中的人数不一样，说明要换班了
-                    const needTurnNum = peopleNum - workingPeople.length
+                    const needTurnNum = peopleNum - workingPeopleNum
                     if (needTurnNum !== 0) {
                         isThereOneBuildingNeedChange = true
                         console.log(`${ocrFilterItem.text}要换班`)
@@ -949,21 +998,17 @@ const construction: Router = [
                             oldWorkPeopleLocationArr.push(locationArr[index])
                         }
                         // 点击原来工作中的干员
-                        for (const location of oldWorkPeopleLocationArr){
+                        for (const location of oldWorkPeopleLocationArr) {
                             await click(location.x, location.y)
                         }
                         // 点击确认按钮
                         await click(confirmBtnX, confirmBtnY)
                         console.log(`${ocrFilterItem.text}换班完毕`)
-                        gameInfo.isConstructionEnd = true
                         break
                     }
                     console.log(`${ocrFilterItem.text}不需要换班`)
                 }
-
             }
-
-
             // 如果没有一个建筑需要换班
             if (!isThereOneBuildingNeedChange) {
                 // 滚动条在末端时候的位置 和 颜色
