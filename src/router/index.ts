@@ -495,11 +495,11 @@ const purchase: Router = [
                                         return ocrItem.x1 > discountMinX && ocrItem.x1 < discountMaxX && ocrItem.y1 > discountMinY && ocrItem.y1 < discountMaxY
                                     })
                                     if (discount) {
-                                        // '-75%', '-50%', '-25%', '0%' '-5Qx',
+                                        // '-75%', '-50%', '-25%', '0%' '-5Qx','50%',
                                         console.log(`第${index}个折扣是${discount.text}`);
                                         discountNum.push({
                                             index,
-                                            discount: Number(discount.text.split('')[1]) // 取出折扣数字
+                                            discount: Number(discount.text.split('')[0]) || Number(discount.text.split('')[1]) // 取出折扣数字
                                         })
                                     }
                                 })
@@ -533,7 +533,7 @@ const purchase: Router = [
                     }
                 }
 
-                for (const item of ['招聘许可', '赤金', ['龙门币', '龙门市'], '家具零件']) {
+                for (const item of ['招聘许可', '赤金', '技巧概要卷3', '技巧概要卷2', '技巧概要卷1', ['龙门币', '龙门市'], '家具零件']) {
                     // 买了就跳出循环
                     const isBuy = await buy(item)
                     if (isBuy) {
@@ -608,12 +608,12 @@ const friendHome: Router = [
         keywords: {
             include: ['线索传递'],
         },
-        action: async function ({capture,ocrResult}) {
+        action: async function ({capture, ocrResult}) {
             // 访问下位按钮激活状态下的底色
             const enableColor = '#d15806'
             const nextBtnOcrItem = ocrResult.find(item => item.text === '访问下位')
-            if(nextBtnOcrItem){
-                const oneWordWidth = (nextBtnOcrItem.x2 - nextBtnOcrItem.x2)/4
+            if (nextBtnOcrItem) {
+                const oneWordWidth = (nextBtnOcrItem.x2 - nextBtnOcrItem.x2) / 4
                 const colorX = nextBtnOcrItem.x2 + oneWordWidth
                 const colorY = nextBtnOcrItem.y2
                 const stillMore = detectsColor(capture, Color.parse(enableColor), colorX, colorY, {threshold: 50})
@@ -627,7 +627,7 @@ const friendHome: Router = [
                     gameInfo.isFriendHomeEnd = true
                     await backHomePage()
                 }
-            }else {
+            } else {
                 console.log('没有找到访问下位按钮，ocr识别有问题。不做处理')
             }
         }
@@ -662,11 +662,11 @@ const construction: Router = [
                 const x = 0.952 * (deviceInfo.longSide as number)
                 const warningColor = Color.parse('#cb4d54')
                 // 有红色感叹号的时候，铃铛是在感叹号的下面
-                if(detectsColor(capture, warningColor, smallX, smallY, {threshold: 20})) {
+                if (detectsColor(capture, warningColor, smallX, smallY, {threshold: 20})) {
                     console.log('点击感叹号下面的小铃铛');
                     const y = 0.195 * (deviceInfo.shortSide as number)
                     await click(x, y)
-                }else{
+                } else {
                     const y = 0.129 * (deviceInfo.shortSide as number)
                     await click(x, y)
                 }
@@ -975,7 +975,7 @@ const construction: Router = [
                         if (isStillHelp && !isTraining) {
                             console.log(`${ocrFilterItem.text}协助位有人 ,但是没人训练， 直接清空`)
                             await change()
-                        }else {
+                        } else {
                             console.log(`${ocrFilterItem.text}不需要换人`)
                         }
                     }
