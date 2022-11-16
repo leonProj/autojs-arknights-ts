@@ -1,6 +1,3 @@
-import {test} from "@/test/toastTest";
-import {testInit} from "@/test/commonUtilTest";
-import {testHrOcr} from "@/test/ocrUtilTest";
 const { showAlertDialog } = require('dialogs');
 
 async function alert(e: any) {
@@ -14,7 +11,7 @@ async function main() {
     await run()
 }
 
-main().catch(e =>{
+main().catch(async e => {
     console.error(e)
-    alert(e)
+    await alert(e)
 })
