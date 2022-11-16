@@ -867,7 +867,7 @@ const construction: Router = [
                     console.log(`点击第一个干员坐标`)
                     await clickPlus({x: firstOperatorLocation.x, y: firstOperatorLocation.y})
                     // 延迟一下，等待淡出动画
-                    await delay(800)
+                    await delay(900)
                 }
 
                 /**
@@ -952,7 +952,7 @@ const construction: Router = [
                         //进入
                         await enterBuilding()
                         // 清空
-                        await click(clearBtnX, clearBtnY)
+                        await click(locationArr[0].x, locationArr[0].y)
                         //换人
                         if (needChange) {
                             await click(locationArr[1].x, locationArr[1].y)
