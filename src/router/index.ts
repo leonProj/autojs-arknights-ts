@@ -237,7 +237,6 @@ const getGameRouter = (): Route[] | void => {
             friendHome: [...baseRouter, ...friendHome],
             construction: [...baseRouter, ...construction]
         }
-
         const key = whichTask.key as keyof typeof dict
         const router = dict[key]
         if (router) {
@@ -245,9 +244,6 @@ const getGameRouter = (): Route[] | void => {
         } else {
             console.error(`没有找到匹配的任务路由列表[${key}]`)
         }
-    } else {
-        gameInfo.allDown = true
-        console.error(`所有流程都已经完成了`)
     }
 }
 

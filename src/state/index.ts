@@ -62,11 +62,6 @@ export interface GameInfo {
      * 是否基建的批量操作结束，即点击右上角小铃铛之后的。可收获，订单交付，干员信赖全部点过了。默认false
      */
     isConstructionBatchEnd:boolean
-
-    /**
-     * 是全部结束
-     */
-    allDown:boolean
 }
 
 
@@ -89,7 +84,6 @@ const gameInfo: GameInfo = {
     isFriendHomeEnd:true,
     isConstructionEnd:false,
     isConstructionBatchEnd:true,
-    allDown:false,
 }
 
 
