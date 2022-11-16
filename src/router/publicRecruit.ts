@@ -86,7 +86,6 @@ const publicRecruit: Route[] = [
              * @returns {Promise<void>}
              */
             const clickTimeAndConfirm = async () => {
-                let canGet = null;
                 let timeLimit: HrOcrResultItem | null = null;
                 let jobRequire: HrOcrResultItem | null = null;
                 let budget: HrOcrResultItem | null = null
