@@ -37,7 +37,7 @@ interface DeviceInfo {
 /**
  * @Description: 游戏信息
  */
-interface GameInfo {
+export interface GameInfo {
     /**
      * @Description: 是否公招结束 默认false
      */

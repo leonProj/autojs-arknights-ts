@@ -13,7 +13,7 @@ import {
 } from "@/utils/accessibilityUtil";
 import {delay} from "lang";
 import {tag, Tags, tags4, tags5, tags6} from "@/constant/tag";
-import {deviceInfo, gameInfo} from "@/state";
+import {deviceInfo, GameInfo, gameInfo} from "@/state";
 import {Color} from "color";
 import {click, swipe} from "accessibility";
 import {getPointByFeatures, Point} from "@/utils/point";
@@ -80,26 +80,56 @@ interface RouterActionParam {
 
 }
 
-/**
- * 任务字典
- */
-const TASK_DICT = {
-    publicRecruit: {
+interface TASKS {
+    /**
+     * description 流程的关键key
+     */
+    key: string
+    /**
+     * description 流程是否结束判断的key
+     */
+    flagKey: keyof GameInfo
+    /**
+     * description 流程中文名称
+     */
+    text: string | string[],
+    /**
+     * description 流程排序,数字越小越优先执行
+     */
+    sort: number
+}
+
+const tasks: TASKS[] = [
+    {
         key: 'publicRecruit',
+        flagKey: "isPublicRecruitEnd",
         text: ['公开招募', '公开募'],
+        sort: 1
     },
-    purchase: {
+    {
         key: 'purchase',
+        flagKey: "isPurchaseEnd",
         text: '采购中心',
+        sort: 4
     },
-    friendHome: {
+    {
         key: 'friendHome',
+        flagKey: "isFriendHomeEnd",
         text: '好友',
+        sort: 2
     },
-    construction: {
+    {
         key: 'construction',
+        flagKey: "isConstructionEnd",
         text: '基建',
+        sort: 3
     }
+]
+/**
+ * 根据sort排序，从小到大，1,2,3,4
+ */
+const getSortTasks = () => {
+    return tasks.sort((a, b) => a.sort - b.sort)
 }
 
 
@@ -1079,17 +1109,7 @@ const baseRouter = [
  * 从没完成的任务里面找一个开始。
  */
 const getOneTaskToRun = () => {
-    if (!gameInfo.isPublicRecruitEnd) {
-        return TASK_DICT.publicRecruit.key
-    } else if (!gameInfo.isPurchaseEnd) {
-        return TASK_DICT.purchase.key
-    } else if (!gameInfo.isFriendHomeEnd) {
-        return TASK_DICT.friendHome.key
-    } else if (!gameInfo.isConstructionEnd) {
-        return TASK_DICT.construction.key
-    } else {
-        gameInfo.allDown = true
-    }
+    return tasks.find(item => !gameInfo[item.flagKey])
 }
 
 /**
@@ -1105,15 +1125,16 @@ const getGameRouter = (): Router | void => {
             construction: [...baseRouter, ...construction]
         }
 
-        // @ts-ignore
-        const key = TASK_DICT[whichTask].key
-        // @ts-ignore
+        const key = whichTask.key as keyof typeof dict
         const router = dict[key]
         if (router) {
             return router
         } else {
             console.error(`没有找到匹配的任务路由列表[${key}]`)
         }
+    }else {
+        gameInfo.allDown = true
+        console.error(`所有流程都已经完成了`)
     }
 }
 
