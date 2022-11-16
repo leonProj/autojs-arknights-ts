@@ -64,6 +64,11 @@ export interface GameInfo {
     isConstructionBatchEnd:boolean
 }
 
+let count = 1
+const addCount = () => {
+    count++
+}
+
 
 
 const path = require("path")
@@ -89,6 +94,8 @@ const gameInfo: GameInfo = {
 
 
 export {
+    addCount,
+    count,
     deviceInfo,
     gameInfo,
 }

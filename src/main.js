@@ -7,6 +7,7 @@ const { foregroundService } = require('settings');
 const { showDialog } = require("dialogs");
 const {showToast} = require("toast");
 const {getRunningEngines, stopAll} = require("engines");
+import {addCount, count} from "./state";
 
 // Web文件夹
 const webRoot = path.join(__dirname, 'web');
@@ -74,29 +75,6 @@ class WebActivity extends ui.Activity {
         });
         const jsBridge = webview.jsBridge;
 
-
-
-
-        jsBridge.handle('start', () => {
-            setInterval(() => {
-                showToast('Hello, world!');
-            },1000)
-        });
-        jsBridge.handle('getS', () => {
-            getRunningEngines().forEach((e) => {
-                console.log(e.id);
-            })
-        });
-        jsBridge.handle('stopAll', () => {
-            stopAll();
-        });
-
-
-
-
-
-
-
         // 处理来自web的请求
         // 处理读取本地文件的请求
         jsBridge.handle('fetch', async (event, args) => {
@@ -106,19 +84,19 @@ class WebActivity extends ui.Activity {
         jsBridge.handle('show-log', () => {
             app.startActivity('console');
         });
-        // 处理设置前台服务的请求
-        jsBridge.handle('set-foreground', (event, enabled) => {
-            foregroundService.value = enabled;
-        });
-        // 处理获取前台服务状态的请求
-        jsBridge.handle('get-foreground', () => {
-            return foregroundService.value;
+
+        /* 自定义事件 */
+        jsBridge.handle('addCount', () => {
+            addCount();
+            console.log(count);
+            showToast(`addCount:${count}`);
         });
 
-        // 处理打开链接的请求，这里用广播方式，也可以handle的请求-响应方式
-        jsBridge.on('open-url', (event, url) => {
-            app.openUrl(url);
-        });
+
+
+
+
+
     }
 }
 ui.setMainActivity(WebActivity);

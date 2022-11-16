@@ -5,7 +5,7 @@ async function alert(e: any) {
 }
 
 import {run} from "@/main";
-import {showToast} from "toast";
+
 
 async function main() {
     await run()
