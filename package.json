@@ -5,10 +5,8 @@
   "main": "./bin/main.js",
   "type": "commonjs",
   "scripts": {
-    "test": "rollup -i ./src/test/index.ts -o ./bin/test/index.js -c & node ./script/addNodeTag.js & node ./script/copyWeb.js",
-    "build": "rollup -c & node ./script/addUiTag.js & node ./script/copyWeb.js",
-    "cleanBuild": "node script/delDir.js ../bin & npm run build",
-    "clean": "node script/delDir.js ../bin"
+    "test": "node script/delDir.js ../bin & rollup -i ./src/test/index.ts -o ./bin/test/index.js -c & node ./script/addNodeTag.js",
+    "build": "node script/delDir.js ../bin & rollup -c & node ./script/addUiTag.js & node ./script/copyWeb.js"
   },
   "keywords": [],
   "author": "",
