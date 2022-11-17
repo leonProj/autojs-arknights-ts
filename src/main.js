@@ -8,7 +8,7 @@ const { showDialog } = require("dialogs");
 const {showToast} = require("toast");
 const {getRunningEngines, stopAll} = require("engines");
 import {addCount, count} from "./state";
-
+import {home} from "accessibility";
 // Web文件夹
 const webRoot = path.join(__dirname, 'web');
 // Web网页首页url
@@ -28,44 +28,8 @@ class WebActivity extends ui.Activity {
     onContentViewSet(contentView) {
         this.webview = contentView.findView('web');
         this.setupWebView(this.webview);
-
-        // 如果sfc loader文件已经存在，直接加载网页
-        if (fs.existsSync(sfcLoaderFile)) {
-            console.log('loadUrl:', indexUrl);
-            this.webview.loadUrl(indexUrl);
-            return;
-        }
-        // 否则先下载，再加载
-        this.downloadSfcFile().then(() => {
-            console.log('loadUrl:', indexUrl);
-            this.webview.loadUrl(indexUrl);
-        })
-    }
-
-    async downloadSfcFile() {
-        return new Promise(async (resolve, reject) => {
-            const dialog = await showDialog({
-                title: "正在下载vue2-sfc-loader.js",
-                progress: { max: 100, showMinMax: true },
-                cancelable: false,
-            });
-            const tmpFile = sfcLoaderFile + '.tmp';
-            downloadFile('https://unpkg.com/vue3-sfc-loader@0.8.4/dist/vue2-sfc-loader.js', tmpFile)
-                .on("progress", (progress) => {
-                    dialog.setProgress(parseInt(progress * 100));
-                })
-                .on("success", () => {
-                    dialog.dismiss();
-                    fs.renameSync(tmpFile, sfcLoaderFile);
-                    resolve();
-                })
-                .on("error", (err) => {
-                    dialog.dismiss();
-                    this.finish();
-                    console.error(err);
-                    reject(err);
-                });
-        });
+        console.log('loadUrl:', indexUrl);
+        this.webview.loadUrl(indexUrl);
     }
 
     setupWebView(webview) {
@@ -87,15 +51,12 @@ class WebActivity extends ui.Activity {
 
         /* 自定义事件 */
         jsBridge.handle('addCount', () => {
-            addCount();
-            console.log(count);
-            showToast(`addCount:${count}`);
+            home()
+            setTimeout(() => {
+                webview.loadUrl("javascript:getAndroidValue('我来自Java')");
+                showToast('aaaaaaaaa')
+            },2000)
         });
-
-
-
-
-
 
     }
 }
@@ -103,39 +64,4 @@ ui.setMainActivity(WebActivity);
 ui.activityLifecycle.on('all_activities_destroyed', () => {
     process.exit();
 });
-console.warn('本方式加载的Vue效率较低，建议使用Node.js版本的cli方式');
 
-function downloadFile(url, file) {
-    const util = require('util');
-    const stream = require('stream');
-    const pipeline = util.promisify(stream.pipeline);
-    const axios = require('axios').default;
-    const EventEmitter = require('events').EventEmitter;
-    const emitter = new EventEmitter();
-
-    (async () => {
-        try {
-            const response = await axios.get(url, {
-                responseType: 'stream',
-            });
-            const totalSize = parseInt(response.headers['content-length']);
-            let receivedSize = 0;
-            await pipeline(response.data, new stream.Transform({
-                transform(chunk, encoding, callback) {
-                    receivedSize += chunk.length;
-                    this.push(chunk);
-                    callback();
-
-                    const progress = typeof (totalSize) === 'number' && totalSize >= 0 ? receivedSize / totalSize : -1;
-                    emitter.emit('progress', progress, receivedSize, totalSize);
-                }
-            }), fs.createWriteStream(file));
-        } catch (e) {
-            emitter.emit('error', e);
-            return;
-        }
-        emitter.emit('success', file);
-    })();
-
-    return emitter;
-}
