@@ -15,7 +15,7 @@ export default {
   data() {
     return {
       count: 1,
-      str:"aa"
+      str:'aa'
     };
   },
   methods: {

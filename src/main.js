@@ -1,3 +1,5 @@
+import {callVueMethod} from "./utils/webviewUtil";
+
 const ui = require('ui');
 const { readFile } = require('fs').promises;
 const fs = require('fs');
@@ -7,7 +9,7 @@ const { foregroundService } = require('settings');
 const { showDialog } = require("dialogs");
 const {showToast} = require("toast");
 const {getRunningEngines, stopAll} = require("engines");
-import {addCount, count} from "./state";
+import {addCount, count, deviceInfo} from "./state";
 import {home} from "accessibility";
 // Web文件夹
 const webRoot = path.join(__dirname, 'web');
@@ -33,6 +35,8 @@ class WebActivity extends ui.Activity {
     }
 
     setupWebView(webview) {
+        // 初始化设备信息中的webview，用于后续webviewUtils中使用webview对象
+        deviceInfo.webview = this.webview;
         // 监听WebView的控制台消息，打印到控制台
         webview.on('console_message', (event, msg) => {
             console.log(`${path.basename(msg.sourceId())}:${msg.lineNumber()}: ${msg.message()}`);
@@ -51,11 +55,7 @@ class WebActivity extends ui.Activity {
 
         /* 自定义事件 */
         jsBridge.handle('addCount', () => {
-            home()
-            setTimeout(() => {
-                webview.loadUrl("javascript:getAndroidValue('我来自Java')");
-                showToast('aaaaaaaaa')
-            },2000)
+            callVueMethod('getAndroidValue','哈哈哈');
         });
 
     }

@@ -31,6 +31,10 @@ interface DeviceInfo {
      * 路径目录
      */
     pathDir:string
+    /**
+     * 安卓初始化ui界面时候获得的webview对象
+     */
+    webview: any
 
 }
 
@@ -75,6 +79,7 @@ const deviceInfo: DeviceInfo = {
     smallWidth: null,
     clipRect: null,
     pathDir:path.dirname(__dirname),
+    webview:null
 }
 
 
