@@ -21,6 +21,7 @@ import {publicRecruit} from "@/router/publicRecruit";
 import {purchase} from "@/router/purchase";
 import {friendHome} from "@/router/friendHome";
 import {construction} from "@/router/construction";
+import {ScreenCapturer} from "media_projection";
 
 
 export interface Route {

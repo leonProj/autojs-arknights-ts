@@ -1,16 +1,32 @@
 /**
  * @file 基建
  */
-import {clickByHrOcrResultAndText, clickCenter, clickPlus, clickRedConFirm, swipePlus} from "@/utils/accessibilityUtil";
+import {
+    backHomePage,
+    clickByHrOcrResultAndText,
+    clickCenter,
+    clickPlus,
+    clickRedConFirm,
+    swipePlus
+} from "@/utils/accessibilityUtil";
 import {deviceInfo, gameInfo} from "@/state";
 import {Color} from "color";
 import {detectsColor} from "image";
 import {click} from "accessibility";
-import {HrOcrResult, HrOcrResultItem} from "@/utils/ocrUtil";
+import {hrOcr, HrOcrResult, HrOcrResultItem} from "@/utils/ocrUtil";
 import {Point} from "@/utils/point";
 import {delay} from "lang";
 import {Route} from "@/router/index";
+import {captureAndClip} from "@/utils/imageUtil";
+import {ScreenCapturer} from "media_projection";
+import {callVueMethod} from "@/utils/webviewUtil";
 
+const finish = () => {
+    gameInfo.isConstructionEnd = true
+    // 每次结束把批量操作重置成未完成状态
+    gameInfo.isConstructionBatchEnd=false
+    callVueMethod('constructionEnd')
+}
 const construction: Route[] = [
     {
         describe: '是否确认离开罗德岛基建确认弹框',
@@ -424,8 +440,22 @@ const construction: Route[] = [
 
                 if (isScrollEnd) {
                     console.log('滚动条到底了，基建流程结束了')
+                    await delay(500)
+                    // 回到首页
+                    await backHomePage()
+                    // 弹框出现动画
+                    await delay(500)
+                    // 截图
+                    const isConfirmCapture = await captureAndClip(deviceInfo.capturer as ScreenCapturer)
+                    // 文字识别
+                    const isConfirmCaptureOcrResult = hrOcr(deviceInfo.ocr, isConfirmCapture);
+                    // 如果有有弹框
+                    if (isConfirmCaptureOcrResult.some(ocrItem => ocrItem.text.includes('是否确认离开罗德岛基建'))) {
+                        await clickRedConFirm(isConfirmCapture)
+                    }
+                    isConfirmCapture.recycle()
                     // 基建流程结束
-                    gameInfo.isConstructionEnd = true
+                    finish()
                 } else {
                     console.log('准备滚动')
                     if (ocrFilterResult.length < 3) {

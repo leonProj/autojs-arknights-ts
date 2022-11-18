@@ -15,6 +15,7 @@ import {detectsColor} from "image";
 import {HrOcrResultItem} from "@/utils/ocrUtil";
 import {delay} from "lang";
 import {Route} from "@/router/index";
+import {callVueMethod} from "@/utils/webviewUtil";
 
 /**
  * @description 在采购中心购买商品弹窗中，点击购买商品按钮
@@ -32,6 +33,11 @@ const purchaseBuy = async () => {
 interface DiscountNum {
     index: number // 打折在原来数组中的索引
     discount: number  // 打折多少
+}
+
+const finish = () => {
+    gameInfo.isPurchaseEnd = true
+    callVueMethod('purchaseEnd')
 }
 
 // 采购中心路由
@@ -198,7 +204,7 @@ const purchase: Route[] = [
             include: ['信用不足，无法购买'],
         },
         action: async function () {
-            gameInfo.isPurchaseEnd = true
+            finish()
             // 左上角点击返回
             console.log('点击左上角返回');
             await clickBack()

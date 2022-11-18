@@ -1,51 +1,124 @@
 <html>
+<head>
+    <style>
+        html {
+            font-size: 16px;
+        }
 
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
+            'Droid Sans', 'Helvetica Neue', 'Microsoft Yahei', sans-serif;
+        }
+
+        body * {
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+
+        #app {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .cdf-flex-row {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .cdf-flex-col {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cdf-justify-start {
+            justify-content: flex-start;
+        }
+
+        .cdf-justify-center {
+            justify-content: center;
+        }
+
+        .cdf-justify-end {
+            justify-content: flex-end;
+        }
+
+        .cdf-justify-evenly {
+            justify-content: space-evenly;
+        }
+
+        .cdf-justify-around {
+            justify-content: space-around;
+        }
+
+        .cdf-justify-between {
+            justify-content: space-between;
+        }
+
+        .cdf-items-start {
+            align-items: flex-start;
+        }
+
+        .cdf-items-center {
+            align-items: center;
+        }
+
+        .cdf-items-end {
+            align-items: flex-end;
+        }
+    </style>
+</head>
 <body>
-  <div id="app"></div>
-  <link rel="stylesheet" href="./index.css" />
-  <script src="./vue.min.js"></script>
-  <script src="./vue2-sfc-loader@0.8.4.js" charset="UTF-8"></script>
-  <script src="./vant.min.js"></script>
-  <script src="autojs://sdk/v1.js"></script>
-  <script>
-    const { loadModule, vueVersion } = window['vue2-sfc-loader'];
+<div id="app"></div>
+<link rel="stylesheet" href="vant.css"/>
+<link rel="stylesheet" href="vant.css"/>
+<script src="./vue.min.js"></script>
+<script src="./vue2-sfc-loader@0.8.4.js" charset="UTF-8"></script>
+<script src="./vant.min.js"></script>
+<script src="autojs://sdk/v1.js"></script>
+<script>
+    const {loadModule, vueVersion} = window['vue2-sfc-loader'];
     const options = {
-      moduleCache: {
-        vue: Vue,
-        myData: {
-          vueVersion,
-        }
-      },
-      async getFile(url) {
-        let getContentData;
-        if (typeof ($autojs) !== 'undefined') {
-          const res = await $autojs.invoke('fetch', { path: url });
-          getContentData = (asBinary) => asBinary ? str2ab(res) : res;
-        } else {
-          const res = await fetch(url);
-          if (!res.ok) {
-            throw Object.assign(new Error(res.statusText + ' ' + url), { res });
-          }
-          getContentData = (asBinary) => asBinary ? res.arrayBuffer() : res.text();
-        }
-        return {
-          getContentData,
-        };
-        function str2ab(str) {
-          var buf = new ArrayBuffer(str.length * 2); // 2 bytes for each char
-          var bufView = new Uint16Array(buf);
-          for (var i = 0, strLen = str.length; i < strLen; i++) {
-            bufView[i] = str.charCodeAt(i);
-          }
-          return buf;
-        }
-      },
-      addStyle() { /* unused here */ },
+        moduleCache: {
+            vue: Vue,
+            myData: {
+                vueVersion,
+            }
+        },
+        async getFile(url) {
+            let getContentData;
+            if (typeof ($autojs) !== 'undefined') {
+                const res = await $autojs.invoke('fetch', {path: url});
+                getContentData = (asBinary) => asBinary ? str2ab(res) : res;
+            } else {
+                const res = await fetch(url);
+                if (!res.ok) {
+                    throw Object.assign(new Error(res.statusText + ' ' + url), {res});
+                }
+                getContentData = (asBinary) => asBinary ? res.arrayBuffer() : res.text();
+            }
+            return {
+                getContentData,
+            };
+
+            function str2ab(str) {
+                var buf = new ArrayBuffer(str.length * 2); // 2 bytes for each char
+                var bufView = new Uint16Array(buf);
+                for (var i = 0, strLen = str.length; i < strLen; i++) {
+                    bufView[i] = str.charCodeAt(i);
+                }
+                return buf;
+            }
+        },
+        addStyle(textContent) {
+            const style = Object.assign(document.createElement('style'), { textContent });
+            const ref = document.head.getElementsByTagName('style')[0] || null;
+            document.head.insertBefore(style, ref);
+        },
     }
 
     loadModule('/main.vue', options)
-      .then(component => new Vue(component).$mount('#app'));
-  </script>
+        .then(component => new Vue(component).$mount('#app'));
+</script>
 </body>
-
 </html>

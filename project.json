@@ -1,34 +1,39 @@
 {
-  "abis": null,
   "assets": [],
   "build": {
-    "build_number": null,
-    "build_time": null,
-    "release": null
+    "build_id": "53207550-1",
+    "build_number": 1,
+    "build_time": 1668765262796,
+    "release": false
   },
   "encryptLevel": 0,
-  "useFeatures": [],
+  "features": {
+    "activityIntentTasks": false,
+    "nodejs": "enabled"
+  },
   "launchConfig": {
     "displaySplash": true,
     "hideLogs": false,
     "splashText": "方舟收菜",
-    "stableMode": false,
-    "splashIcon": null,
-    "splashLayoutXml": null
+    "stableMode": false
   },
-  "main": "./bin/main.js",
+  "main": "./bin/main.node.js",
   "name": "方舟收菜",
   "optimization": {
+    "obfuscateComponents": false,
+    "removeAccessibilityService": false,
     "removeOpenCv": false,
-    "unusedResources": false,
-    "removeAccessibilityService": null,
-    "obfuscateComponents": false
+    "unusedResources": false
   },
   "packageName": "pers.leon.autoark",
-  "scripts": {},
-  "versionCode": 1,
-  "versionName": "1.0.0",
-  "icon": null,
+  "permissionConfig": {
+    "requestListOnStartup": [
+      "android.permission.WRITE_EXTERNAL_STORAGE"
+    ]
+  },
+  "plugins": {
+    "com.hraps.ocr": "1.0"
+  },
   "publish": {
     "category": "其他",
     "details": "方舟收菜",
@@ -39,9 +44,10 @@
     "minSdkVersion": 0,
     "permissions": [],
     "summary": "方舟收菜",
-    "tags": null
+    "tags": []
   },
-  "signingConfig": null,
-  "androidResources": null,
-  "permissionConfig": null
+  "scripts": {},
+  "useFeatures": [],
+  "versionCode": 1,
+  "versionName": "1.0.0"
 }

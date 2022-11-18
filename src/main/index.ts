@@ -1,4 +1,4 @@
-import {gameInfo} from "@/state";
+import {deviceInfo, gameInfo, otherInfo} from "@/state";
 
 const {delay} = require('lang');
 import {getGameRouter} from '@/router'
@@ -10,6 +10,10 @@ import {hrOcr} from "@/utils/ocrUtil";
 import {showAlertDialog} from "dialogs";
 import {writeImage} from "image";
 import path from "path";
+import {ScreenCapturer} from "media_projection";
+import {callVueMethod} from "@/utils/webviewUtil";
+import {home} from "accessibility";
+import {launchApp} from "app";
 
 const {requestScreenCapture} = require('media_projection');
 const plugins = require('plugins');
@@ -37,6 +41,14 @@ async function alert(e: string) {
     await showAlertDialog("结束", {content: e, type: "overlay"});
 }
 
+/**
+ * 停止运行
+ */
+function stop() {
+    callVueMethod('stopRun');
+    deviceInfo.capturer?.stop()
+}
+
 
 async function run() {
     if (!accessibility.enabled) {
@@ -45,27 +57,39 @@ async function run() {
     }
     // 初始化
     init();
+    // 初始化未找到路由页面的次数
     let count = 0;
-    // home();
-    await delay(1000);
     // 请求截图权限
-    const capturer = await requestScreenCapture();
+    const capturer: ScreenCapturer= await requestScreenCapture();
     // 创建OCR对象
     const ocr = await plugins.load("com.hraps.ocr")
+    // 对象塞入，方便其他地方使用
+    deviceInfo.capturer = capturer;
+    deviceInfo.ocr = ocr;
+
+    // 启动游戏
+    launchApp("明日方舟");
 
     while (true) {
         const gameRouter = getGameRouter();
         // 公招流程
         if (!gameRouter) {
             showToast('运行结束');
-            await alert(`流程结束`);
+            await alert(`收菜结束`);
+            stop();
             break;
         }
 
         // 延迟截图
-        await delay(1000);
+        await delay(500);
         // 截图
         const capture = await captureAndClip(capturer)
+        /* auto的bug：首次启动autojs,ui界面方式。初次调用toBitmap方法时会出错，后面再调用是没问题的  */
+        try {
+            capture.toBitmap()
+        }catch (e) {
+            console.log('初始化toBitmap')
+        }
         // 文字识别
         const ocrResult = hrOcr(ocr, capture);
         // 将ocr结果中的文字拼接成字符串
@@ -117,8 +141,9 @@ async function run() {
         }
 
         if (notFound) {
+            const msg = '未找到匹配的路由，累计' + count + '次'
             count++
-            console.log('未找到匹配的路由');
+            console.log(msg);
         }
 
         // 回收截图对象
@@ -126,10 +151,18 @@ async function run() {
 
 
         if (count > 10) {
-            console.log(`连续${count}次未找到路由，结束运行`)
+            const msg='未找到匹配的路由，累计' + count + '次，结束运行';
+            console.log(msg)
             capturer.stop()
-            showToast('运行结束');
-            await alert(`连续${count}次未找到路由`);
+            await alert(msg);
+            break
+        }
+
+        // 强制停止
+        // 放在最后停止，为了上面一些recycle回收操作执行完
+        if(otherInfo.forceStop){
+            otherInfo.forceStop = false;
+            stop();
             break
         }
     }

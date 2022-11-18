@@ -16,6 +16,12 @@ import {tag, Tags, tags4, tags5, tags6} from "@/constant/tag";
 import {HrOcrResultItem} from "@/utils/ocrUtil";
 import {gameInfo} from "@/state";
 import {Route} from "@/router/index";
+import {callVueMethod} from "@/utils/webviewUtil";
+
+const finish = () => {
+    gameInfo.isPublicRecruitEnd = true
+    callVueMethod('publicRecruitEnd')
+}
 
 const publicRecruit: Route[] = [
     {
@@ -180,7 +186,7 @@ const publicRecruit: Route[] = [
         },
         action: async function ({capture}) {
             // 公招流程结束
-            gameInfo.isPublicRecruitEnd = true
+            finish()
             // 左上角点击返回
             console.log('点击左上角返回');
             await clickBack()

@@ -1,3 +1,5 @@
+import {run} from "./main";
+
 const ui = require('ui');
 const {readFile} = require('fs').promises;
 const fs = require('fs');
@@ -7,9 +9,11 @@ const {foregroundService} = require('settings');
 const {showDialog} = require("dialogs");
 const {showToast} = require("toast");
 const {getRunningEngines, stopAll} = require("engines");
-import {addCount, count, deviceInfo, gameInfo} from "./state";
+import {addCount, count, deviceInfo, gameInfo, otherInfo} from "./state";
 import {home} from "accessibility";
 import {tasks} from "./router";
+import {showAlertDialog} from "dialogs";
+import {callVueMethod} from "./utils/webviewUtil";
 // Web文件夹
 const webRoot = path.join(__dirname, 'web');
 // Web网页首页url
@@ -67,6 +71,19 @@ class WebActivity extends ui.Activity {
         jsBridge.handle('gameInfoSwitchChange', (event, param) => {
             const {flagKey, value} = param;
             gameInfo[flagKey] = value;
+        });
+
+        // 开始运行
+        jsBridge.handle('start', () => {
+            run().catch(async (e) => {
+                callVueMethod('stopRun')
+                console.error(e)
+                await showAlertDialog("错误", {content: e.toString(), type: "overlay"});
+            })
+        });
+        // 停止运行
+        jsBridge.handle('stop', () => {
+            otherInfo.forceStop = true;
         });
 
     }

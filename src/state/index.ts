@@ -2,6 +2,7 @@
  * @file: 运行时数据
  */
 import {Rect} from "ui_object";
+import {ScreenCapturer} from "media_projection";
 
 /**
  * @Description: 设备信息
@@ -32,10 +33,17 @@ interface DeviceInfo {
      */
     pathDir:string
     /**
-     * 安卓初始化ui界面时候获得的webview对象
+     * 请求截图权限返回的对象
      */
-    webview: any
-
+    capturer: ScreenCapturer |null
+    /**
+     * ocr对象
+     */
+    ocr:any
+    /**
+     * 安卓webview对象
+     */
+    webview:any
 }
 
 /**
@@ -68,6 +76,17 @@ export interface GameInfo {
     isConstructionBatchEnd:boolean
 }
 
+interface OtherInfo {
+    /**
+     * 是否强制停止
+     */
+    forceStop:boolean
+}
+
+const otherInfo :OtherInfo = {
+    forceStop:false
+}
+
 
 
 const path = require("path")
@@ -79,19 +98,22 @@ const deviceInfo: DeviceInfo = {
     smallWidth: null,
     clipRect: null,
     pathDir:path.dirname(__dirname),
+    capturer: null,
+    ocr:null,
     webview:null
 }
 
 
 const gameInfo: GameInfo = {
-    isPublicRecruitEnd: true,
+    isPublicRecruitEnd: false,
     isPurchaseEnd:false,
-    isFriendHomeEnd:true,
-    isConstructionEnd:true,
-    isConstructionBatchEnd:true,
+    isFriendHomeEnd:false,
+    isConstructionEnd:false,
+    isConstructionBatchEnd:false,
 }
 
 export {
     deviceInfo,
     gameInfo,
+    otherInfo
 }

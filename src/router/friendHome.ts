@@ -8,7 +8,12 @@ import {detectsColor} from "image";
 import {Color} from "color";
 import {gameInfo} from "@/state";
 import {Route} from "@/router/index";
+import {callVueMethod} from "@/utils/webviewUtil";
 
+const finish = () => {
+    gameInfo.isFriendHomeEnd = true
+    callVueMethod('friendHomeEnd')
+}
 const friendHome: Route[] = [
     {
         describe: '个人名片界面',
@@ -53,7 +58,7 @@ const friendHome: Route[] = [
 
                 } else {
                     console.log('好友会客室已经全部访问完毕')
-                    gameInfo.isFriendHomeEnd = true
+                    finish()
                     await backHomePage()
                 }
             } else {
