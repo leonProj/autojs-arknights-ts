@@ -13,13 +13,10 @@ import {showToast} from "toast";
 function callVueMethod(methodName: string, param: any) {
     const webview = deviceInfo.webview
     if (!webview) {
-        showToast("webview对象为空")
+        showToast("调用vue方法失败，webview对象为空")
         console.error("webview 是空的！！！！")
     } else {
-        // 如果是字符串 要加上双引号
-        if (typeof param === "string") {
-            param = `"${param}"`
-        }
+        param = JSON.stringify(param)
         webview.loadUrl(`javascript:${methodName}(${param})`);
     }
 }

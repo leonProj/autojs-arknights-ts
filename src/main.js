@@ -1,15 +1,15 @@
 import {callVueMethod} from "./utils/webviewUtil";
 
 const ui = require('ui');
-const { readFile } = require('fs').promises;
+const {readFile} = require('fs').promises;
 const fs = require('fs');
 const path = require('path');
 const app = require('app');
-const { foregroundService } = require('settings');
-const { showDialog } = require("dialogs");
+const {foregroundService} = require('settings');
+const {showDialog} = require("dialogs");
 const {showToast} = require("toast");
 const {getRunningEngines, stopAll} = require("engines");
-import {addCount, count, deviceInfo} from "./state";
+import {addCount, count, deviceInfo, gameInfo} from "./state";
 import {home} from "accessibility";
 // Web文件夹
 const webRoot = path.join(__dirname, 'web');
@@ -21,7 +21,9 @@ const sfcLoaderFile = path.join(webRoot, 'vue2-sfc-loader@0.8.4.js')
 
 // 显示Web的界面
 class WebActivity extends ui.Activity {
-    get initialStatusBar() { return { color: '#ffffff', light: true } }
+    get initialStatusBar() {
+        return {color: '#ffffff', light: true}
+    }
 
     get layoutXml() {
         return `<vertical><webview id="web" w="*" h="*"/></vertical>`
@@ -46,7 +48,7 @@ class WebActivity extends ui.Activity {
         // 处理来自web的请求
         // 处理读取本地文件的请求
         jsBridge.handle('fetch', async (event, args) => {
-            return await readFile(path.resolve(path.join(webRoot, args.path)), { encoding: 'utf-8' });
+            return await readFile(path.resolve(path.join(webRoot, args.path)), {encoding: 'utf-8'});
         });
         // 处理显示日志界面的请求
         jsBridge.handle('show-log', () => {
@@ -54,12 +56,16 @@ class WebActivity extends ui.Activity {
         });
 
         /* 自定义事件 */
-        jsBridge.handle('addCount', () => {
-            callVueMethod('getAndroidValue','哈哈哈');
+        // vue created之后
+        jsBridge.handle('created', () => {
+            const param = 'aaaaaaaa'
+            console.log('param',param)
+            callVueMethod('initData', param);
         });
 
     }
 }
+
 ui.setMainActivity(WebActivity);
 ui.activityLifecycle.on('all_activities_destroyed', () => {
     process.exit();
