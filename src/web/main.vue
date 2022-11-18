@@ -1,22 +1,26 @@
 <template>
   <div>
     <van-button plain type="primary" @click="showLog">运行日志</van-button>
-<!--    <div v-if="gameInfo">-->
-<!--      <div v-for="key in gameInfo">{{gameInfo[key]}}</div>-->
-<!--    </div>-->
+    <div v-if="tasks && gameInfo">
+      <div v-for="(item) in tasks">
+        {{ Array.isArray(item.text) ? item.text[0] : item.text }}
+        <van-switch v-model="gameInfo[item.flagKey]" @change="gameInfoSwitchChange($event,item.flagKey)"/>
+      </div>
+    </div>
   </div>
 </template>
 <script>
 export default {
   created() {
-    console.log('vue created');
-    $autojs.invoke("created");
-    // vue方法挂载到全局，使得安卓能通过webview调用
-    window.initData = this.initData
+    $autojs.invoke("created").then((param) => {
+      this.tasks = param.tasks;
+      this.gameInfo = param.gameInfo;
+    });
   },
   data() {
     return {
-      gameInfo: null
+      tasks: null,
+      gameInfo: null,
     };
   },
   methods: {
@@ -24,10 +28,18 @@ export default {
     showLog: function () {
       $autojs.invoke("show-log");
     },
-    // 初始化数据
-    initData(param) {
-      console.log('param222',param)
-    },
+    /**
+     * 游戏信息开关改变,通知安卓改变安卓的gameInfo数据
+     * @param {boolean} e 开关值
+     * @param {string} flagKey gameInfo的key
+     */
+    gameInfoSwitchChange(e, flagKey) {
+      const param = {
+        flagKey,
+        value: e
+      }
+      $autojs.invoke("gameInfoSwitchChange", param);
+    }
   },
 };
 </script>

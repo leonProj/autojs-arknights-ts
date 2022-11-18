@@ -1,5 +1,3 @@
-import {callVueMethod} from "./utils/webviewUtil";
-
 const ui = require('ui');
 const {readFile} = require('fs').promises;
 const fs = require('fs');
@@ -11,6 +9,7 @@ const {showToast} = require("toast");
 const {getRunningEngines, stopAll} = require("engines");
 import {addCount, count, deviceInfo, gameInfo} from "./state";
 import {home} from "accessibility";
+import {tasks} from "./router";
 // Web文件夹
 const webRoot = path.join(__dirname, 'web');
 // Web网页首页url
@@ -56,11 +55,18 @@ class WebActivity extends ui.Activity {
         });
 
         /* 自定义事件 */
-        // vue created之后
+        // vue created之后 将安卓数据传递给vue
         jsBridge.handle('created', () => {
-            const param = 'aaaaaaaa'
-            console.log('param',param)
-            callVueMethod('initData', param);
+            return {
+                tasks,
+                gameInfo
+            }
+        });
+
+        // 处理gameInfo数据变化
+        jsBridge.handle('gameInfoSwitchChange', (event, param) => {
+            const {flagKey, value} = param;
+            gameInfo[flagKey] = value;
         });
 
     }

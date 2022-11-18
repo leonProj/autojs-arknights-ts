@@ -83,7 +83,7 @@ async function run() {
             const ocrFixText = isNeedOcrFix ? ocrFix(ocrText, route.keywords.ocrFix) : ocrText
 
             // 判断单个路由中关键词是否匹配
-            const isIncludeMatch = route.keywords.include?.every((keyword) => {
+            const isIncludeMatch = route.keywords.include.every((keyword) => {
                 // 是数组 ，数组中的任意一个匹配即可
                 if (Array.isArray(keyword)) {
                     return keyword.some((item) => ocrFixText.includes(item))
@@ -91,7 +91,7 @@ async function run() {
                 // 字符串直接匹配
                 else
                     return ocrFixText.includes(keyword)
-            }) || true
+            })
             // 判断单个路由中排除关键词是否匹配
             const isExcludeMatch = route.keywords.exclude?.some(keyword => ocrFixText.includes(keyword));
             // 判断单个路由中【有一个就行的】关键词是否匹配
