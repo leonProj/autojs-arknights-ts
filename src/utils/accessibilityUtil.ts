@@ -75,6 +75,17 @@ async function clickCenter(): Promise<void> {
 }
 
 /**
+ * @description 点击右侧,坐标无意义，只是为了点击屏幕取消弹框反馈
+ */
+async function clickRight(): Promise<void> {
+    console.log('准备点击为屏幕中间');
+    const x = deviceInfo.longSide as number * 0.95
+    const y = deviceInfo.shortSide as number / 2
+    await click(x, y)
+    console.log(`点击屏幕右侧成功,坐标为${x},${y}`);
+}
+
+/**
  * @description 点击屏幕中间偏下的位置 ，坐标无意义，只是为了点击屏幕取消弹框反馈
  */
 async function clickCenterBottom(): Promise<void> {
@@ -194,6 +205,7 @@ export {
     clickByHrOcrResultAndText,
     clickByColor,
     clickCenter,
+    clickRight,
     clickByFeatures,
     clickBack,
     clickCircleClose,

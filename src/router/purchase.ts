@@ -3,7 +3,13 @@
  */
 import {deviceInfo, gameInfo} from "@/state";
 import {click} from "accessibility";
-import {clickBack, clickByHrOcrResultAndText, clickCenterBottom, clickPlus} from "@/utils/accessibilityUtil";
+import {
+    clickBack,
+    clickByHrOcrResultAndText,
+    clickCenterBottom,
+    clickPlus,
+    clickRight
+} from "@/utils/accessibilityUtil";
 import {Color} from "color";
 import {detectsColor} from "image";
 import {HrOcrResultItem} from "@/utils/ocrUtil";
@@ -217,6 +223,16 @@ const purchase: Route[] = [
         },
         action: async function ({ocrResult}) {
             await clickCenterBottom()
+        }
+    },
+    // :
+    {
+        describe: '采购中心，危机合约时候干员被使用次数弹框',
+        keywords: {
+            include: ['危机合约被使用次数'],
+        },
+        action: async function ({ocrResult}) {
+            await clickRight()
         }
     },
 ]
