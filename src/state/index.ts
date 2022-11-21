@@ -69,7 +69,11 @@ export interface GameInfo {
      * 是否基建流程结束。默认false
      */
     isConstructionEnd:boolean
-
+    /**
+     * 是否基第一次换人流程结束。默认false，如果该值为false，那么此次只换宿舍的人。其他建筑不换人
+     * 解释：因为宿舍换人会把其他建筑底心情的人给换掉，所以宿舍单独走流程，宿舍结束知乎再换其他建筑
+     */
+    isConstructionDormitoryEnd:boolean
     /**
      * 是否基建的批量操作结束，即点击右上角小铃铛之后的。可收获，订单交付，干员信赖全部点过了。默认false
      */
@@ -109,6 +113,7 @@ const gameInfo: GameInfo = {
     isPurchaseEnd:false,
     isFriendHomeEnd:false,
     isConstructionEnd:false,
+    isConstructionDormitoryEnd:false,
     isConstructionBatchEnd:false,
 }
 

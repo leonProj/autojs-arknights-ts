@@ -2,7 +2,7 @@
  * @file 基建
  */
 import {
-    backHomePage,
+    backHomePage, clickBack,
     clickByHrOcrResultAndText,
     clickCenter,
     clickPlus,
@@ -23,8 +23,9 @@ import {callVueMethod} from "@/utils/webviewUtil";
 
 const finish = () => {
     gameInfo.isConstructionEnd = true
-    // 每次结束把批量操作重置成未完成状态
+    // 重置批量和宿舍为false
     gameInfo.isConstructionBatchEnd = false
+    gameInfo.isConstructionDormitoryEnd = false
     callVueMethod('constructionEnd')
 }
 const construction: Route[] = [
@@ -284,149 +285,152 @@ const construction: Route[] = [
                 }).num
                 console.log(`${ocrFilterItem.text}一共需要${peopleNum}个人`)
 
+                // 如果宿舍换班流程没结束
+                if(!gameInfo.isConstructionDormitoryEnd){
+                    // 宿舍休息流程
+                    if (ocrFilterItem.text.includes('宿舍')) {
+                        console.log(`看看${ocrFilterItem.text}要不要换人休息`)
+                        // 正在休息的人数
+                        let stillRestPeople = ocrResult.filter(ocrItem => {
+                            return isInThisLine(ocrItem) && ocrItem.text.includes('休息中')
+                        })
+                        console.log(`${ocrFilterItem.text}有${stillRestPeople.length}个人在休息中`)
+                        const stillRestPeopleIndex = getExitPeopleIndex(stillRestPeople)
+                        console.log(`休息中人员序号：${stillRestPeopleIndex}`)
+                        console.log(`实际需要换：${(peopleNum - stillRestPeople.length)}个人`)
+                        // 如果休息人数小于5 或者 空着的人数大于 0 则需要换人
+                        if (stillRestPeople.length < peopleNum || emptyIndex.length > 0) {
+                            isThereOneBuildingNeedChange = true
+                            // 点击第一个干员进入换人界面，
+                            await enterBuilding()
+                            // 点击清空按钮
+                            await click(clearBtnX, clearBtnY)
+                            // 换人
+                            const start = peopleNum - emptyIndex.length
+                            const end = start + (peopleNum - stillRestPeople.length)
+                            for (let i = start; i < end; i++) {
+                                // 点击新加的干员
+                                await click(locationArr[i].x, locationArr[i].y)
+                            }
+                            // 获取原来休息中中干员的坐标位置
+                            const oldRestPeopleLocationArr = []
+                            for (const index of stillRestPeopleIndex) {
+                                oldRestPeopleLocationArr.push(locationArr[index])
+                            }
+                            // 点击原来休息中的干员
+                            for (const location of oldRestPeopleLocationArr) {
+                                await click(location.x, location.y)
+                            }
+                            // 点击确认按钮
+                            await click(confirmBtnX, confirmBtnY)
+                            console.log(`${ocrFilterItem.text}换班完毕`)
+                            break
+                        } else {
+                            console.log(`${ocrFilterItem.text}不需要换班`)
+                        }
+                    }
+                }else {
+                    // 训练室流程
+                    if (ocrFilterItem.text.includes('训练室')) {
+                        // 注意力涣散的
+                        const tiredPeople: HrOcrResult = ocrResult.filter(ocrItem => isInThisLine(ocrItem) && ocrItem.text.includes('注意力'))
+                        console.log(`${ocrFilterItem.text}有${tiredPeople.length}个人涣散了`)
+                        // 训练位是否有人
+                        const isTraining = !emptyIndex.some(eIndex => eIndex === 1)
+                        const isStillHelp = !emptyIndex.some(eIndex => eIndex === 0)
 
-                // 宿舍休息流程
-                if (ocrFilterItem.text.includes('宿舍')) {
-                    console.log(`看看${ocrFilterItem.text}要不要换人休息`)
-                    // 正在休息的人数
-                    let stillRestPeople = ocrResult.filter(ocrItem => {
-                        return isInThisLine(ocrItem) && ocrItem.text.includes('休息中')
-                    })
-                    console.log(`${ocrFilterItem.text}有${stillRestPeople.length}个人在休息中`)
-                    const stillRestPeopleIndex = getExitPeopleIndex(stillRestPeople)
-                    console.log(`休息中人员序号：${stillRestPeopleIndex}`)
-                    console.log(`实际需要换：${(peopleNum - stillRestPeople.length)}个人`)
-                    // 如果休息人数小于5 或者 空着的人数大于 0 则需要换人
-                    if (stillRestPeople.length < peopleNum || emptyIndex.length > 0) {
-                        isThereOneBuildingNeedChange = true
-                        // 点击第一个干员进入换人界面，
-                        await enterBuilding()
-                        // 点击清空按钮
-                        await click(clearBtnX, clearBtnY)
-                        // 换人
-                        const start = peopleNum - emptyIndex.length
-                        const end = start + (peopleNum - stillRestPeople.length)
-                        for (let i = start; i < end; i++) {
-                            // 点击新加的干员
-                            await click(locationArr[i].x, locationArr[i].y)
+                        /**
+                         * 训练室换人
+                         * @param needChange 是否需要换人，false则只是清空
+                         */
+                        const change = async (needChange: boolean = false) => {
+                            isThereOneBuildingNeedChange = true
+                            //进入
+                            await enterBuilding()
+                            // 清空
+                            await click(locationArr[0].x, locationArr[0].y)
+                            //换人
+                            if (needChange) {
+                                await click(locationArr[1].x, locationArr[1].y)
+                            }
+                            // 点击确认按钮
+                            await click(confirmBtnX, confirmBtnY)
+                            console.log(`${ocrFilterItem.text}换班完毕`)
                         }
-                        // 获取原来休息中中干员的坐标位置
-                        const oldRestPeopleLocationArr = []
-                        for (const index of stillRestPeopleIndex) {
-                            oldRestPeopleLocationArr.push(locationArr[index])
+
+                        // 如果有人涣散了
+                        if (tiredPeople.length > 0) {
+                            // 训练位有人就换协助位，没人则清空协助位
+                            console.log(`${ocrFilterItem.text}协助位涣散了`)
+                            console.log(`${ocrFilterItem.text}训练位有人就换协助位，没人则清空协助位`)
+                            await change(isTraining)
                         }
-                        // 点击原来休息中的干员
-                        for (const location of oldRestPeopleLocationArr) {
-                            await click(location.x, location.y)
+                        // 没人涣散
+                        else {
+                            // 协助位有人 ,但是没人训练， 也直接清空
+                            if (isStillHelp && !isTraining) {
+                                console.log(`${ocrFilterItem.text}协助位有人 ,但是没人训练， 直接清空`)
+                                await change()
+                            } else {
+                                console.log(`${ocrFilterItem.text}不需要换人`)
+                            }
                         }
-                        // 点击确认按钮
-                        await click(confirmBtnX, confirmBtnY)
-                        console.log(`${ocrFilterItem.text}换班完毕`)
-                        break
-                    } else {
+                    }
+                    // 普通换班流程
+                    else {
+                        console.log(`看看${ocrFilterItem.text}要不要换班`)
+                        // 注意力涣散的
+                        const tiredPeople: HrOcrResult = ocrResult.filter(ocrItem => isInThisLine(ocrItem) && ocrItem.text.includes('注意力'))
+                        console.log(`${ocrFilterItem.text}有${tiredPeople.length}个人涣散了`)
+                        // 注意力涣散的人员在一行中的序号
+                        const tiredPeopleIndex = getExitPeopleIndex(tiredPeople)
+                        console.log(`涣散人员序号：${tiredPeopleIndex}`)
+                        // 工作中的
+                        const workingPeopleNum = peopleNum - tiredPeople.length - emptyIndex.length
+                        console.log(`${ocrFilterItem.text}有${workingPeopleNum}个人工作中`)
+                        // 工作中的人员在一行中的序号
+                        const workingPeopleIndex = []
+                        for (let i = 0; i < peopleNum; i++) {
+                            // 如果这个序号不在涣散人员序号中，也不在空着的人员序号中，则是工作中的人员的序号
+                            if (!tiredPeopleIndex.includes(i) && !emptyIndex.includes(i)) {
+                                workingPeopleIndex.push(i)
+                            }
+                        }
+                        console.log(`工作中人员序号：${workingPeopleIndex}`)
+
+                        // 如果总共需要的和工作中的人数不一样，说明要换班了
+                        const needTurnNum = peopleNum - workingPeopleNum
+                        if (needTurnNum !== 0) {
+                            isThereOneBuildingNeedChange = true
+                            console.log(`${ocrFilterItem.text}要换班`)
+                            console.log(`${ocrFilterItem.text}实际需要再换上${needTurnNum}个人`)
+                            // 点击第一个干员进入换人界面，
+                            await enterBuilding()
+                            // 点击清空按钮
+                            await click(clearBtnX, clearBtnY)
+                            // 替换干员
+                            const start = peopleNum - emptyIndex.length
+                            const end = start + needTurnNum
+                            for (let i = start; i < end; i++) {
+                                // 点击新加的干员
+                                await click(locationArr[i].x, locationArr[i].y)
+                            }
+                            // 获取原来工作中干员的坐标位置
+                            const oldWorkPeopleLocationArr = []
+                            for (const index of workingPeopleIndex) {
+                                oldWorkPeopleLocationArr.push(locationArr[index])
+                            }
+                            // 点击原来工作中的干员
+                            for (const location of oldWorkPeopleLocationArr) {
+                                await click(location.x, location.y)
+                            }
+                            // 点击确认按钮
+                            await click(confirmBtnX, confirmBtnY)
+                            console.log(`${ocrFilterItem.text}换班完毕`)
+                            break
+                        }
                         console.log(`${ocrFilterItem.text}不需要换班`)
                     }
-                }
-                // 训练室流程
-                else if (ocrFilterItem.text.includes('训练室')) {
-                    // 注意力涣散的
-                    const tiredPeople: HrOcrResult = ocrResult.filter(ocrItem => isInThisLine(ocrItem) && ocrItem.text.includes('注意力'))
-                    console.log(`${ocrFilterItem.text}有${tiredPeople.length}个人涣散了`)
-                    // 训练位是否有人
-                    const isTraining = !emptyIndex.some(eIndex => eIndex === 1)
-                    const isStillHelp = !emptyIndex.some(eIndex => eIndex === 0)
-
-                    /**
-                     * 训练室换人
-                     * @param needChange 是否需要换人，false则只是清空
-                     */
-                    const change = async (needChange: boolean = false) => {
-                        isThereOneBuildingNeedChange = true
-                        //进入
-                        await enterBuilding()
-                        // 清空
-                        await click(locationArr[0].x, locationArr[0].y)
-                        //换人
-                        if (needChange) {
-                            await click(locationArr[1].x, locationArr[1].y)
-                        }
-                        // 点击确认按钮
-                        await click(confirmBtnX, confirmBtnY)
-                        console.log(`${ocrFilterItem.text}换班完毕`)
-                    }
-
-                    // 如果有人涣散了
-                    if (tiredPeople.length > 0) {
-                        // 训练位有人就换协助位，没人则清空协助位
-                        console.log(`${ocrFilterItem.text}协助位涣散了`)
-                        console.log(`${ocrFilterItem.text}训练位有人就换协助位，没人则清空协助位`)
-                        await change(isTraining)
-                    }
-                    // 没人涣散
-                    else {
-                        // 协助位有人 ,但是没人训练， 也直接清空
-                        if (isStillHelp && !isTraining) {
-                            console.log(`${ocrFilterItem.text}协助位有人 ,但是没人训练， 直接清空`)
-                            await change()
-                        } else {
-                            console.log(`${ocrFilterItem.text}不需要换人`)
-                        }
-                    }
-                }
-                // 普通换班流程
-                else {
-                    console.log(`看看${ocrFilterItem.text}要不要换班`)
-                    // 注意力涣散的
-                    const tiredPeople: HrOcrResult = ocrResult.filter(ocrItem => isInThisLine(ocrItem) && ocrItem.text.includes('注意力'))
-                    console.log(`${ocrFilterItem.text}有${tiredPeople.length}个人涣散了`)
-                    // 注意力涣散的人员在一行中的序号
-                    const tiredPeopleIndex = getExitPeopleIndex(tiredPeople)
-                    console.log(`涣散人员序号：${tiredPeopleIndex}`)
-                    // 工作中的
-                    const workingPeopleNum = peopleNum - tiredPeople.length - emptyIndex.length
-                    console.log(`${ocrFilterItem.text}有${workingPeopleNum}个人工作中`)
-                    // 工作中的人员在一行中的序号
-                    const workingPeopleIndex = []
-                    for (let i = 0; i < peopleNum; i++) {
-                        // 如果这个序号不在涣散人员序号中，也不在空着的人员序号中，则是工作中的人员的序号
-                        if (!tiredPeopleIndex.includes(i) && !emptyIndex.includes(i)) {
-                            workingPeopleIndex.push(i)
-                        }
-                    }
-                    console.log(`工作中人员序号：${workingPeopleIndex}`)
-
-                    // 如果总共需要的和工作中的人数不一样，说明要换班了
-                    const needTurnNum = peopleNum - workingPeopleNum
-                    if (needTurnNum !== 0) {
-                        isThereOneBuildingNeedChange = true
-                        console.log(`${ocrFilterItem.text}要换班`)
-                        console.log(`${ocrFilterItem.text}实际需要再换上${needTurnNum}个人`)
-                        // 点击第一个干员进入换人界面，
-                        await enterBuilding()
-                        // 点击清空按钮
-                        await click(clearBtnX, clearBtnY)
-                        // 替换干员
-                        const start = peopleNum - emptyIndex.length
-                        const end = start + needTurnNum
-                        for (let i = start; i < end; i++) {
-                            // 点击新加的干员
-                            await click(locationArr[i].x, locationArr[i].y)
-                        }
-                        // 获取原来工作中干员的坐标位置
-                        const oldWorkPeopleLocationArr = []
-                        for (const index of workingPeopleIndex) {
-                            oldWorkPeopleLocationArr.push(locationArr[index])
-                        }
-                        // 点击原来工作中的干员
-                        for (const location of oldWorkPeopleLocationArr) {
-                            await click(location.x, location.y)
-                        }
-                        // 点击确认按钮
-                        await click(confirmBtnX, confirmBtnY)
-                        console.log(`${ocrFilterItem.text}换班完毕`)
-                        break
-                    }
-                    console.log(`${ocrFilterItem.text}不需要换班`)
                 }
             }
             // 如果没有一个建筑需要换班
@@ -440,23 +444,38 @@ const construction: Route[] = [
                 const isScrollEnd = detectsColor(capture, Color.parse(scrollColorKey), scrollX, scrollY, {threshold: 50})
 
                 if (isScrollEnd) {
-                    console.log('滚动条到底了，基建流程结束了')
+                    console.log('滚动条到底了')
                     await delay(500)
-                    // 回到首页
-                    await backHomePage()
-                    // 弹框出现动画
-                    await delay(500)
-                    // 截图
-                    const isConfirmCapture = await captureAndClip(deviceInfo.capturer as ScreenCapturer)
-                    // 文字识别
-                    const isConfirmCaptureOcrResult = hrOcr(deviceInfo.ocr, isConfirmCapture);
-                    // 如果有有弹框
-                    if (isConfirmCaptureOcrResult.some(ocrItem => ocrItem.text.includes('是否确认离开罗德岛基建'))) {
-                        await clickRedConFirm(isConfirmCapture)
+                    // 如果宿舍换班流程没结束，就结束宿舍换班流程
+                    if (!gameInfo.isConstructionDormitoryEnd) {
+                        console.log('宿舍流程结束，准备再次进入换班其他流程')
+                        gameInfo.isConstructionDormitoryEnd = true
+                        // 重新退出进入开始其他建筑的换班流程
+                        await clickBack()
+                        // 点击进驻总览位置：比例坐标 x=164/1688=0.096  166/949=0.175
+                        const x = 0.096 * (deviceInfo.longSide as number)
+                        const y = 0.175 * (deviceInfo.shortSide as number)
+                        console.log('再次点击进驻总览')
+                        await click(x, y)
                     }
-                    isConfirmCapture.recycle()
-                    // 基建流程结束
-                    finish()
+                    // 如果宿舍流程结束了，那么就结束整个流程
+                    else {
+                        // 回到首页
+                        await backHomePage()
+                        // 弹框出现动画
+                        await delay(500)
+                        // 截图
+                        const isConfirmCapture = await captureAndClip(deviceInfo.capturer as ScreenCapturer)
+                        // 文字识别
+                        const isConfirmCaptureOcrResult = hrOcr(deviceInfo.ocr, isConfirmCapture);
+                        // 如果有有弹框
+                        if (isConfirmCaptureOcrResult.some(ocrItem => ocrItem.text.includes('是否确认离开罗德岛基建'))) {
+                            await clickRedConFirm(isConfirmCapture)
+                        }
+                        isConfirmCapture.recycle()
+                        // 基建流程结束
+                        finish()
+                    }
                 } else {
                     console.log('准备滚动')
                     if (ocrFilterResult.length < 3) {
@@ -475,6 +494,15 @@ const construction: Route[] = [
                     }
                 }
             }
+        }
+    },
+    {
+        describe: '基建-换班人员冲突，是否确认排班调整',
+        keywords: {
+            include: ['确认进行本次排班调整？'],
+        },
+        action: async function ({ocrResult}) {
+            await clickByHrOcrResultAndText(ocrResult, '确认')
         }
     },
 ]
