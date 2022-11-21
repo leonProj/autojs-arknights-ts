@@ -132,16 +132,6 @@ const tasks: TASKS[] = [
 
 const main: Route[] = [
     {
-        describe: '雷电模拟器主界面',
-        keywords: {
-            include: ['系统应用', '搜索游戏或应用'],
-            exclude: ['文件管理器'],
-        },
-        action: async function ({ocrResult}) {
-            await clickByHrOcrResultAndText(ocrResult, '明日方舟');
-        }
-    },
-    {
         describe: '明日方舟开始的start界面',
         keywords: {
             include: ['CADPAVer', '网络检测', '清除缓存'],
@@ -207,8 +197,8 @@ const main: Route[] = [
             include: ['正在提交反馈至神经'],
         },
         action: async function () {
-            console.log('正在提交反馈至神经Loading中不操作');
-            // do nothing
+            console.log('正在提交反馈至神经Loading中');
+            await delay(500);
         }
     },
 ]

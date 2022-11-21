@@ -24,7 +24,7 @@ import {callVueMethod} from "@/utils/webviewUtil";
 const finish = () => {
     gameInfo.isConstructionEnd = true
     // 每次结束把批量操作重置成未完成状态
-    gameInfo.isConstructionBatchEnd=false
+    gameInfo.isConstructionBatchEnd = false
     callVueMethod('constructionEnd')
 }
 const construction: Route[] = [
@@ -112,6 +112,7 @@ const construction: Route[] = [
         describe: '基建_进驻总览界面',
         keywords: {
             include: ['蓝图预览'],
+            ocrFix: {'你': '休'} // 休息中-你息中
         },
         action: async function ({ocrResult, capture}) {
             // 所有的建筑  name：名称  num：所需人员数量
