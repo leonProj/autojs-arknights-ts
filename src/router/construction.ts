@@ -452,6 +452,7 @@ const construction: Route[] = [
                         gameInfo.isConstructionDormitoryEnd = true
                         // 重新退出进入开始其他建筑的换班流程
                         await clickBack()
+                        await delay(500)
                         // 点击进驻总览位置：比例坐标 x=164/1688=0.096  166/949=0.175
                         const x = 0.096 * (deviceInfo.longSide as number)
                         const y = 0.175 * (deviceInfo.shortSide as number)
@@ -499,7 +500,7 @@ const construction: Route[] = [
     {
         describe: '基建-换班人员冲突，是否确认排班调整',
         keywords: {
-            include: ['确认进行本次排班调整？'],
+            include: ['确认进行本次排班调整'],
         },
         action: async function ({ocrResult}) {
             await clickByHrOcrResultAndText(ocrResult, '确认')
