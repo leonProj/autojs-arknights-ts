@@ -71,9 +71,18 @@ async function run() {
     launchApp("明日方舟");
 
     while (true) {
+        // 强制停止
+        if(otherInfo.forceStop){
+            otherInfo.forceStop = false;
+            stop();
+            break
+        }
+
+        // 获取可用的路由
         const gameRouter = getGameRouter();
-        // 公招流程
+        // 如果路由为空
         if (!gameRouter) {
+            // 运行结束
             showToast('运行结束');
             await alert(`收菜结束`);
             stop();
@@ -120,7 +129,7 @@ async function run() {
             const isExcludeMatch = route.keywords.exclude?.some(keyword => ocrFixText.includes(keyword));
             // 判断单个路由中【有一个就行的】关键词是否匹配
             const isIncludeOneMatch = route.keywords.includeOne?.some(keyword => ocrFixText.includes(keyword)) || true;
-            // 关键词匹配成功，排除关键词匹配失败
+            // 匹配成功
             if (isIncludeMatch && !isExcludeMatch && isIncludeOneMatch) {
                 // 没找到改为false
                 notFound = false
@@ -155,14 +164,6 @@ async function run() {
             console.log(msg)
             capturer.stop()
             await alert(msg);
-            break
-        }
-
-        // 强制停止
-        // 放在最后停止，为了上面一些recycle回收操作执行完
-        if(otherInfo.forceStop){
-            otherInfo.forceStop = false;
-            stop();
             break
         }
     }
