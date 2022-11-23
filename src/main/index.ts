@@ -14,6 +14,7 @@ import {ScreenCapturer} from "media_projection";
 import {callVueMethod} from "@/utils/webviewUtil";
 import {home} from "accessibility";
 import {launchApp} from "app";
+import {canDrawOverlays, manageDrawOverlays} from "floating_window";
 
 const {requestScreenCapture} = require('media_projection');
 const plugins = require('plugins');
@@ -51,6 +52,11 @@ function stop() {
 
 
 async function run() {
+    if(canDrawOverlays()){
+        showToast('请先开启悬浮窗权限');
+        stop();
+        manageDrawOverlays()
+    }
     if (!accessibility.enabled) {
         showToast('请先开启无障碍服务');
         await accessibility.enableService({toast: false})
