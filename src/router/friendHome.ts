@@ -9,6 +9,7 @@ import {Color} from "color";
 import {gameInfo} from "@/state";
 import {Route} from "@/router/index";
 import {callVueMethod} from "@/utils/webviewUtil";
+import {delay} from "lang";
 
 const finish = () => {
     gameInfo.isFriendHomeEnd = true
@@ -43,6 +44,8 @@ const friendHome: Route[] = [
             include: ['线索传递'],
         },
         action: async function ({capture, ocrResult}) {
+            // 等待淡入动画
+            await delay(500)
             // 访问下位按钮激活状态下的底色
             const enableColor = '#d15806'
             const nextBtnOcrItem = ocrResult.find(item => item.text === '访问下位')
