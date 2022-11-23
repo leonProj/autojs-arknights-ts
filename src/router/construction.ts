@@ -159,6 +159,10 @@ const construction: Route[] = [
                 })
             })
             console.log(`一共识别到${ocrFilterResult.length}个建筑`)
+            if(ocrFilterResult.length<3){
+                console.log('识别到的建筑数量不足3个，重新识别')
+                return
+            }
             ocrFilterResult = ocrFilterResult.slice(0, 3)// 只取前三个建筑，第四个建筑可能名字有，但是人物下标没有
             console.log('只取前三个建筑')
             ocrFilterResult.forEach((ocrItem, index) => {
@@ -377,7 +381,7 @@ const construction: Route[] = [
                         }
                     }
                     // 普通换班流程
-                    else {
+                    else if(!ocrFilterItem.text.includes('宿舍')){
                         console.log(`看看${ocrFilterItem.text}要不要换班`)
                         // 注意力涣散的
                         const tiredPeople: HrOcrResult = ocrResult.filter(ocrItem => isInThisLine(ocrItem) && ocrItem.text.includes('注意力'))
