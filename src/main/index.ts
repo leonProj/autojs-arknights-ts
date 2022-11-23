@@ -56,6 +56,7 @@ async function run() {
         showToast('请先开启悬浮窗权限');
         stop();
         manageDrawOverlays()
+        return
     }
     if (!accessibility.enabled) {
         showToast('请先开启无障碍服务');
