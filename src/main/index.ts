@@ -52,7 +52,7 @@ function stop() {
 
 
 async function run() {
-    if(canDrawOverlays()){
+    if(!canDrawOverlays()){
         showToast('请先开启悬浮窗权限');
         stop();
         manageDrawOverlays()
