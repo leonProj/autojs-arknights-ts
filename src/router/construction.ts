@@ -44,7 +44,9 @@ const construction: Route[] = [
             include: ['进驻总览'],
             exclude: ['蓝图预览']
         },
-        action: async function ({ocrResult, capture}) {
+        action: async function ({ocrResult}) {
+            await delay(500)
+            const capture = await captureAndClip(deviceInfo.capturer as ScreenCapturer)
             // 如果批量操作没做，就点击小铃铛 走批量流程
             if (!gameInfo.isConstructionBatchEnd) {
                 console.log('点击小铃铛');
@@ -68,6 +70,7 @@ const construction: Route[] = [
             else {
                 await clickByHrOcrResultAndText(ocrResult, '进驻总览')
             }
+            capture.recycle()
         }
     },
     {
