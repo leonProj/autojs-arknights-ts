@@ -6,10 +6,12 @@ import {backHomePage, clickByHrOcrResultAndText, clickPlus} from "@/utils/access
 import {HrOcrResultItem} from "@/utils/ocrUtil";
 import {detectsColor} from "image";
 import {Color} from "color";
-import {gameInfo} from "@/state";
+import {deviceInfo, gameInfo} from "@/state";
 import {Route} from "@/router/index";
 import {callVueMethod} from "@/utils/webviewUtil";
 import {delay} from "lang";
+import {captureAndClip} from "@/utils/imageUtil";
+import {ScreenCapturer} from "media_projection";
 
 const finish = () => {
     gameInfo.isFriendHomeEnd = true
@@ -43,9 +45,11 @@ const friendHome: Route[] = [
         keywords: {
             include: ['线索传递'],
         },
-        action: async function ({capture, ocrResult}) {
+        action: async function ({ ocrResult}) {
             // 等待淡入动画
             await delay(500)
+            // 重新截图，因为淡入动画的遮罩会导致访问下位的颜色识别不正确
+            const capture = await captureAndClip(deviceInfo.capturer as ScreenCapturer)
             // 访问下位按钮激活状态下的底色
             const enableColor = '#d15806'
             const nextBtnOcrItem = ocrResult.find(item => item.text === '访问下位')
@@ -53,7 +57,7 @@ const friendHome: Route[] = [
                 const oneWordWidth = (nextBtnOcrItem.x2 - nextBtnOcrItem.x2) / 4
                 const colorX = nextBtnOcrItem.x2 + oneWordWidth
                 const colorY = nextBtnOcrItem.y2
-                const stillMore = detectsColor(capture, Color.parse(enableColor), colorX, colorY, {threshold: 50})
+                const stillMore = detectsColor(captureTwo, Color.parse(enableColor), colorX, colorY, {threshold: 50})
                 // 橘色的访问下位
                 if (stillMore) {
                     console.log('点击访问下位')
@@ -67,6 +71,8 @@ const friendHome: Route[] = [
             } else {
                 console.log('没有找到访问下位按钮，ocr识别有问题。不做处理')
             }
+            // 回收截图
+            capture.recycle()
         }
     },
 ]

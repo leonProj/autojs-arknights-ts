@@ -115,7 +115,10 @@ const construction: Route[] = [
             include: ['蓝图预览'],
             ocrFix: {'你': '休'} // 休息中-你息中
         },
-        action: async function ({ocrResult, capture}) {
+        action: async function ({ocrResult}) {
+            // 延迟截图，等待淡出动画
+            await delay(500)
+            const capture = await captureAndClip(deviceInfo.capturer as ScreenCapturer)
             // 所有的建筑  name：名称  num：所需人员数量
             const buildings = [
                 {
@@ -159,7 +162,7 @@ const construction: Route[] = [
                 })
             })
             console.log(`一共识别到${ocrFilterResult.length}个建筑`)
-            if(ocrFilterResult.length<3){
+            if (ocrFilterResult.length < 3) {
                 console.log('识别到的建筑数量不足3个，重新识别')
                 return
             }
@@ -290,7 +293,7 @@ const construction: Route[] = [
                 console.log(`${ocrFilterItem.text}一共需要${peopleNum}个人`)
 
                 // 如果宿舍换班流程没结束
-                if(!gameInfo.isConstructionDormitoryEnd){
+                if (!gameInfo.isConstructionDormitoryEnd) {
                     // 宿舍休息流程
                     if (ocrFilterItem.text.includes('宿舍')) {
                         console.log(`看看${ocrFilterItem.text}要不要换人休息`)
@@ -333,7 +336,7 @@ const construction: Route[] = [
                             console.log(`${ocrFilterItem.text}不需要换班`)
                         }
                     }
-                }else {
+                } else {
                     // 训练室流程
                     if (ocrFilterItem.text.includes('训练室')) {
                         // 注意力涣散的
@@ -381,7 +384,7 @@ const construction: Route[] = [
                         }
                     }
                     // 普通换班流程
-                    else if(!ocrFilterItem.text.includes('宿舍')){
+                    else if (!ocrFilterItem.text.includes('宿舍')) {
                         console.log(`看看${ocrFilterItem.text}要不要换班`)
                         // 注意力涣散的
                         const tiredPeople: HrOcrResult = ocrResult.filter(ocrItem => isInThisLine(ocrItem) && ocrItem.text.includes('注意力'))
@@ -499,6 +502,7 @@ const construction: Route[] = [
                     }
                 }
             }
+            capture.recycle()
         }
     },
     {

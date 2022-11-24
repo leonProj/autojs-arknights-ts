@@ -1,6 +1,8 @@
 <template>
   <div class="page">
     <div class="content">
+      <van-notice-bar left-icon="info-o">无障碍服务未开启</van-notice-bar>
+      <van-notice-bar left-icon="info-o">悬浮窗权限未开启</van-notice-bar>
       <van-grid clickable :column-num="2" :border="false">
         <van-grid-item>
           <van-button v-if="!isRun" :color="mainColor" @click="start">开始运行</van-button>
