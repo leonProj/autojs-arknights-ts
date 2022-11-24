@@ -57,7 +57,7 @@ const friendHome: Route[] = [
                 const oneWordWidth = (nextBtnOcrItem.x2 - nextBtnOcrItem.x2) / 4
                 const colorX = nextBtnOcrItem.x2 + oneWordWidth
                 const colorY = nextBtnOcrItem.y2
-                const stillMore = detectsColor(captureTwo, Color.parse(enableColor), colorX, colorY, {threshold: 50})
+                const stillMore = detectsColor(capture, Color.parse(enableColor), colorX, colorY, {threshold: 50})
                 // 橘色的访问下位
                 if (stillMore) {
                     console.log('点击访问下位')
