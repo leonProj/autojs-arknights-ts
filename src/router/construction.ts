@@ -322,14 +322,9 @@ const construction: Route[] = [
                                 // 点击新加的干员
                                 await click(locationArr[i].x, locationArr[i].y)
                             }
-                            // 获取原来休息中中干员的坐标位置
-                            const oldRestPeopleLocationArr = []
-                            for (const index of stillRestPeopleIndex) {
-                                oldRestPeopleLocationArr.push(locationArr[index])
-                            }
                             // 点击原来休息中的干员
-                            for (const location of oldRestPeopleLocationArr) {
-                                await click(location.x, location.y)
+                            for (let i = 0; i < stillRestPeopleIndex.length; i++) {
+                                await click(locationArr[i].x, locationArr[i].y)
                             }
                             // 点击确认按钮
                             await click(confirmBtnX, confirmBtnY)
@@ -427,7 +422,6 @@ const construction: Route[] = [
                             }
                             // 点击原来工作中的干员
                             for (let i = 0; i < workingPeopleNum; i++) {
-                                // 点击新加的干员
                                 await click(locationArr[i].x, locationArr[i].y)
                             }
                             // 点击确认按钮
