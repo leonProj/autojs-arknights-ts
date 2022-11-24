@@ -1,8 +1,18 @@
 <template>
   <div class="page">
     <div class="content">
-<!--      <van-notice-bar left-icon="info-o">无障碍服务未开启</van-notice-bar>-->
-<!--      <van-notice-bar left-icon="info-o">悬浮窗权限未开启</van-notice-bar>-->
+      <van-notice-bar left-icon="info-o" v-if="!accessibilityEnable">
+        无障碍服务未开启
+        <template #right-icon>
+          <van-button type="primary" size="small" @click="enableAccessibility">去开启</van-button>
+        </template>
+      </van-notice-bar>
+      <van-notice-bar left-icon="info-o" v-if="!overlayEnable">
+        悬浮窗权限未开启
+        <template #right-icon>
+          <van-button type="primary" size="small" @click="enableOverlay">去开启</van-button>
+        </template>
+      </van-notice-bar>
       <van-grid clickable :column-num="2" :border="false">
         <van-grid-item>
           <van-button v-if="!isRun" :color="mainColor" @click="start">开始运行</van-button>
@@ -34,6 +44,8 @@ export default {
       this.tasks = param.tasks;
       this.gameInfo = param.gameInfo;
     });
+    this.checkAccessibilityEnable()
+    this.checkOverlayEnable()
     // 全局挂载,让安卓主动能操作vue内数据
     window.stopRun = () => {
       this.isStopping = false;
@@ -73,6 +85,8 @@ export default {
     return {
       isRun: false,// 脚本是否正在运行
       isStopping: false,// 脚本是否正在停止
+      accessibilityEnable:true,// 无障碍服务是否开启
+      overlayEnable:true,// 悬浮窗权限是否开启
       tasks: null,
       gameInfo: null,
     };
@@ -84,6 +98,14 @@ export default {
     },
     // 开始运行
     start() {
+      if(!this.accessibilityEnable ){
+        Notify({ type: 'danger', message: '请先开启无障碍服务' });
+        return
+      }
+      if(!this.overlayEnable ){
+        Notify({ type: 'danger', message: '请先开启悬浮窗权限' });
+        return
+      }
       this.isRun = true;
       $autojs.invoke("start");
     },
@@ -102,6 +124,30 @@ export default {
         value: e
       }
       $autojs.invoke("gameInfoSwitchChange", param);
+    },
+    // 检查无障碍服务是否开启
+    checkAccessibilityEnable() {
+      $autojs.invoke("checkAccessibilityEnable").then((flag) => {
+        this.accessibilityEnable = flag
+      });
+    },
+    // 检查悬浮窗权限是否开启
+    checkOverlayEnable() {
+      $autojs.invoke("checkOverlayEnable").then((flag) => {
+        this.overlayEnable = flag
+      });
+    },
+    // 开启无障碍服务
+    enableAccessibility() {
+      $autojs.invoke("enableAccessibility").then(() => {
+        this.checkAccessibilityEnable()
+      });
+    },
+    // 开启悬浮窗权限
+    enableOverlay() {
+      $autojs.invoke("enableOverlay").then(() => {
+        this.checkOverlayEnable()
+      });
     }
   },
 };

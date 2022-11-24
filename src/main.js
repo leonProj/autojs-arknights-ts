@@ -10,10 +10,11 @@ const {showDialog} = require("dialogs");
 const {showToast} = require("toast");
 const {getRunningEngines, stopAll} = require("engines");
 import {addCount, count, deviceInfo, gameInfo, otherInfo} from "./state";
-import {home} from "accessibility";
+import {accessibility, home} from "accessibility";
 import {tasks} from "./router";
 import {showAlertDialog} from "dialogs";
 import {callVueMethod} from "./utils/webviewUtil";
+import {canDrawOverlays, manageDrawOverlays} from "floating_window";
 // Web文件夹
 const webRoot = path.join(__dirname, 'web');
 // Web网页首页url
@@ -85,6 +86,23 @@ class WebActivity extends ui.Activity {
         jsBridge.handle('stop', () => {
             otherInfo.forceStop = true;
         });
+        //开启障碍服务
+        jsBridge.handle('enableAccessibility', async () => {
+            await accessibility.enableService({toast: false})
+        });
+        // 悬浮窗
+        jsBridge.handle('enableOverlay', async () => {
+            manageDrawOverlays()
+        });
+        // 检查无障碍服务是否开启
+        jsBridge.handle('checkAccessibilityEnable',  () => {
+           return accessibility.enabled
+        });
+        // 检查悬浮窗是否开启
+        jsBridge.handle('checkOverlayEnable',  () => {
+            return canDrawOverlays()
+        })
+
 
     }
 }

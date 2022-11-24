@@ -32,6 +32,7 @@
 <script src="autojs://sdk/v1.js"></script>
 <script>
     const {loadModule, vueVersion} = window['vue2-sfc-loader'];
+    const {Notify} = window['vant'];
     const options = {
         moduleCache: {
             vue: Vue,
@@ -72,7 +73,10 @@
     }
 
     loadModule('/main.vue', options)
-        .then(component => new Vue(component).$mount('#app'));
+        .then(component => {
+            Vue.use(Notify)
+            return new Vue(component).$mount('#app')
+        });
 </script>
 </body>
 </html>

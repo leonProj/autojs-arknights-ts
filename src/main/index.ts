@@ -60,7 +60,9 @@ async function run() {
     }
     if (!accessibility.enabled) {
         showToast('请先开启无障碍服务');
+        stop();
         await accessibility.enableService({toast: false})
+        return
     }
     // 初始化
     init();
@@ -75,7 +77,11 @@ async function run() {
     deviceInfo.ocr = ocr;
 
     // 启动游戏
-    launchApp("明日方舟");
+    if(!launchApp("明日方舟")){
+        showToast('请先安装明日方舟');
+        stop();
+        return
+    }
 
     while (true) {
         // 强制停止
