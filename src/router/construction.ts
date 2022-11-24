@@ -425,14 +425,10 @@ const construction: Route[] = [
                                 // 点击新加的干员
                                 await click(locationArr[i].x, locationArr[i].y)
                             }
-                            // 获取原来工作中干员的坐标位置
-                            const oldWorkPeopleLocationArr = []
-                            for (const index of workingPeopleIndex) {
-                                oldWorkPeopleLocationArr.push(locationArr[index])
-                            }
                             // 点击原来工作中的干员
-                            for (const location of oldWorkPeopleLocationArr) {
-                                await click(location.x, location.y)
+                            for (let i = 0; i < workingPeopleNum; i++) {
+                                // 点击新加的干员
+                                await click(locationArr[i].x, locationArr[i].y)
                             }
                             // 点击确认按钮
                             await click(confirmBtnX, confirmBtnY)
