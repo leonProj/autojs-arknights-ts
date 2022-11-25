@@ -310,8 +310,12 @@ const construction: Route[] = [
                         console.log(`实际需要换：${(peopleNum - stillRestPeople.length)}个人`)
                         // 获取当前宿舍实际状态 默认全部为休息完毕
                         const dormitoryStatusArr = ['休息完毕', '休息完毕', '休息完毕', '休息完毕', '休息完毕']
-                        stillRestPeopleIndex.forEach(item => {dormitoryStatusArr[item] = '休息中'})
-                        emptyIndex.forEach(item => {dormitoryStatusArr[item] = '空闲'})
+                        stillRestPeopleIndex.forEach(item => {
+                            dormitoryStatusArr[item] = '休息中'
+                        })
+                        emptyIndex.forEach(item => {
+                            dormitoryStatusArr[item] = '空闲'
+                        })
                         console.log(`${ocrFilterItem.text}进驻状态为：${dormitoryStatusArr}`)
                         // 如果休息人数小于5 或者 空着的人数大于 0 则需要换人
                         if (stillRestPeople.length < peopleNum || emptyIndex.length > 0) {
@@ -325,13 +329,17 @@ const construction: Route[] = [
                             const end = start + (peopleNum - stillRestPeople.length)
                             for (let i = start; i < end; i++) {
                                 // 点击新加的干员
+                                console.log(`点击第${i + 1}个干员`)
                                 await click(locationArr[i].x, locationArr[i].y)
                             }
                             // 点击原来休息中的干员
                             const excludeEmptyIndexArr = dormitoryStatusArr.filter(item => item !== '空闲')
-                            excludeEmptyIndexArr.forEach((item, index) => {
-                                item='休息完毕' && click(locationArr[index].x, locationArr[index].y)
-                            })
+                            for(let i = 0; i < excludeEmptyIndexArr.length; i++) {
+                                if (excludeEmptyIndexArr[i] === '休息中') {
+                                    console.log(`点击第${i + 1}个干员`)
+                                    await click(locationArr[i].x, locationArr[i].y)
+                                }
+                            }
                             for (let i = 0; i < stillRestPeopleIndex.length; i++) {
                                 await click(locationArr[i].x, locationArr[i].y)
                             }
@@ -413,10 +421,16 @@ const construction: Route[] = [
                         console.log(`工作中人员序号：${workingPeopleIndex}`)
 
                         // 进驻状态
-                        const statusArr = []
-                        workingPeopleIndex.forEach(item => {statusArr[item] = '工作中'})
-                        emptyIndex.forEach(item => {statusArr[item] = '空闲'})
-                        tiredPeopleIndex.forEach(item => {statusArr[item] = '涣散'})
+                        const statusArr: string[] = []
+                        workingPeopleIndex.forEach(item => {
+                            statusArr[item] = '工作中'
+                        })
+                        emptyIndex.forEach(item => {
+                            statusArr[item] = '空闲'
+                        })
+                        tiredPeopleIndex.forEach(item => {
+                            statusArr[item] = '涣散'
+                        })
                         console.log(`${ocrFilterItem.text}进驻状态为：${statusArr}`)
                         // 如果总共需要的和工作中的人数不一样，说明要换班了
                         const needTurnNum = peopleNum - workingPeopleNum
@@ -433,13 +447,18 @@ const construction: Route[] = [
                             const end = start + needTurnNum
                             for (let i = start; i < end; i++) {
                                 // 点击新加的干员
+                                console.log(`点击第${i + 1}个干员`)
                                 await click(locationArr[i].x, locationArr[i].y)
                             }
                             // 点击原来工作中的干员
                             const excludeEmptyArr = statusArr.filter(item => item !== '空闲')
-                            excludeEmptyArr.forEach((item, index) => {
-                                item === '工作中' && click(locationArr[index].x, locationArr[index].y)
-                            })
+                            for (const item of excludeEmptyArr) {
+                                const index = excludeEmptyArr.indexOf(item);
+                                if(item === '工作中') {
+                                    await click(locationArr[index].x, locationArr[index].y)
+                                    console.log(`点击第${index + 1}个干员`)
+                                }
+                            }
                             // 点击确认按钮
                             await click(confirmBtnX, confirmBtnY)
                             console.log(`${ocrFilterItem.text}换班完毕`)
