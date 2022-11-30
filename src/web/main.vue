@@ -75,6 +75,12 @@ export default {
         isConstructionEnd: true
       }
     }
+    window.todoCollectionEnd = () => {
+      this.gameInfo = {
+        ...this.gameInfo,
+        isTodoCollectionEnd: true
+      }
+    }
 
   },
   data() {

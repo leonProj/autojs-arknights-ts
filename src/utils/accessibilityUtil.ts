@@ -95,6 +95,16 @@ async function clickCenterBottom(): Promise<void> {
     await click(x, y)
     console.log(`点击屏幕中间偏下的位置成功,坐标为${x},${y}`);
 }
+/**
+ * @description 点击屏幕中间偏上的位置 ，坐标无意义，只是为了点击屏幕取消弹框反馈
+ */
+async function clickCenterTop(): Promise<void> {
+    console.log('准备点击屏幕中间偏上的位置');
+    const x = deviceInfo.longSide as number / 2
+    const y = deviceInfo.shortSide as number * 0.05
+    await click(x, y)
+    console.log(`点击屏幕中间偏上的位置成功,坐标为${x},${y}`);
+}
 
 /**
  * 全分辨率找图,从截图对象上找小图，然后点击
@@ -198,6 +208,7 @@ async function  swipePlus (x1: number, y1: number, x2: number, y2: number, durat
 }
 
 export {
+    clickCenterTop,
     swipePlus,
     clickRedConFirm,
     backHomePage,

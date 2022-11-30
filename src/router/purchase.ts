@@ -231,7 +231,6 @@ const purchase: Route[] = [
             await clickCenterBottom()
         }
     },
-    // :
     {
         describe: '采购中心，危机合约时候干员被使用次数弹框',
         keywords: {

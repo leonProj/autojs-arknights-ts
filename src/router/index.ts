@@ -22,6 +22,7 @@ import {purchase} from "@/router/purchase";
 import {friendHome} from "@/router/friendHome";
 import {construction} from "@/router/construction";
 import {ScreenCapturer} from "media_projection";
+import {todoCollection} from "@/router/todoCollection";
 
 
 export interface Route {
@@ -127,6 +128,12 @@ const tasks: TASKS[] = [
         flagKey: "isConstructionEnd",
         text: '基建',
         sort: 3
+    },
+    {
+        key: 'todoCollection',
+        flagKey: "isTodoCollectionEnd",
+        text: '任务',
+        sort: 5
     }
 ]
 
@@ -226,7 +233,8 @@ const getGameRouter = (): Route[] | void => {
             publicRecruit: [...baseRouter, ...publicRecruit],
             purchase: [...baseRouter, ...purchase],
             friendHome: [...baseRouter, ...friendHome],
-            construction: [...baseRouter, ...construction]
+            construction: [...baseRouter, ...construction],
+            todoCollection:[...baseRouter,...todoCollection]
         }
         const key = whichTask.key as keyof typeof dict
         const router = dict[key]

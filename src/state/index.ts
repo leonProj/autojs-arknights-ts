@@ -78,6 +78,19 @@ export interface GameInfo {
      * 是否基建的批量操作结束，即点击右上角小铃铛之后的。可收获，订单交付，干员信赖全部点过了。默认false
      */
     isConstructionBatchEnd:boolean
+    /**
+     * 是否任务收集模块结束。默认false
+     */
+    isTodoCollectionEnd:boolean
+    /**
+     * 是否日常任务收集。默认false
+     */
+    isTodoCollectionDailyEnd:boolean
+    /**
+     * 是否周长任务收集。默认false
+     */
+    isTodoCollectionWeeklyEnd:boolean
+
 }
 
 interface OtherInfo {
@@ -115,6 +128,9 @@ const gameInfo: GameInfo = {
     isConstructionEnd:false,
     isConstructionDormitoryEnd:false,
     isConstructionBatchEnd:false,
+    isTodoCollectionEnd:false,
+    isTodoCollectionDailyEnd:false,
+    isTodoCollectionWeeklyEnd:false,
 }
 
 export {
