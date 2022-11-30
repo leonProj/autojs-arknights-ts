@@ -2,7 +2,7 @@
   "name": "autojs-arknights-ts",
   "version": "1.0.0",
   "description": "明日方舟收菜脚本,autojsPro9+nodejs+ts+vue2+vant",
-  "main": "./bin/main.js",
+  "main": "./bin/main.node.js",
   "type": "commonjs",
   "scripts": {
     "test": "node script/delDir.js ../bin & rollup -i ./src/test/index.ts -o ./bin/test/index.js -c & node ./script/addNodeTag.js",

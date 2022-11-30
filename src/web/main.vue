@@ -12,6 +12,7 @@
         悬浮窗权限未开启
         <template #right-icon>
           <van-button type="primary" size="small" @click="enableOverlay">去开启</van-button>
+          <van-button type="primary" size="small" @click="checkOverlayEnable">再次检查</van-button>
         </template>
       </van-notice-bar>
       <van-grid clickable :column-num="2" :border="false">

@@ -1,9 +1,12 @@
 {
+  "abis": [
+    "armeabi-v7a"
+  ],
   "assets": [],
   "build": {
-    "build_id": "53207550-1",
-    "build_number": 1,
-    "build_time": 1668765262796,
+    "build_id": "EBA87A2A-4",
+    "build_number": 4,
+    "build_time": 1669794460857,
     "release": false
   },
   "encryptLevel": 0,
