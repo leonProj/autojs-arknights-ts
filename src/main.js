@@ -1,4 +1,4 @@
-import {run} from "./main";
+import {missionRun, run} from "./main";
 
 const ui = require('ui');
 const {readFile} = require('fs').promises;
@@ -9,6 +9,7 @@ const {foregroundService} = require('settings');
 const {showDialog} = require("dialogs");
 const {showToast} = require("toast");
 const {getRunningEngines, stopAll} = require("engines");
+import {stop} from "./main";
 import {addCount, count, deviceInfo, gameInfo, otherInfo} from "./state";
 import {accessibility, home} from "accessibility";
 import {tasks} from "./router";
@@ -58,13 +59,17 @@ class WebActivity extends ui.Activity {
         jsBridge.handle('show-log', () => {
             app.startActivity('console');
         });
-
+        const RUNNING_TASK = {
+            mission: 'mission',// 刷关卡
+            main: 'main',// 收菜
+        }
         /* 自定义事件 */
         // vue created之后 将安卓数据传递给vue
         jsBridge.handle('created', () => {
             return {
                 tasks,
-                gameInfo
+                gameInfo,
+                RUNNING_TASK,
             }
         });
 
@@ -75,9 +80,10 @@ class WebActivity extends ui.Activity {
         });
 
         // 开始运行
-        jsBridge.handle('start', () => {
-            run().catch(async (e) => {
-                callVueMethod('stopRun')
+        jsBridge.handle('start', (event, param) => {
+            let whichRun = param.runningTask === RUNNING_TASK.main ? run : missionRun;
+            whichRun().catch(async (e) => {
+                stop()
                 console.error(e)
                 await showAlertDialog("错误", {content: e.toString(), type: "overlay"});
             })
@@ -95,11 +101,11 @@ class WebActivity extends ui.Activity {
             manageDrawOverlays()
         });
         // 检查无障碍服务是否开启
-        jsBridge.handle('checkAccessibilityEnable',  () => {
-           return accessibility.enabled
+        jsBridge.handle('checkAccessibilityEnable', () => {
+            return accessibility.enabled
         });
         // 检查悬浮窗是否开启
-        jsBridge.handle('checkOverlayEnable',  () => {
+        jsBridge.handle('checkOverlayEnable', () => {
             return canDrawOverlays()
         })
 

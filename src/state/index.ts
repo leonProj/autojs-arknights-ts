@@ -90,7 +90,10 @@ export interface GameInfo {
      * 是否周长任务收集。默认false
      */
     isTodoCollectionWeeklyEnd:boolean
-
+    /**
+     * 是否关卡已经刷完，刷到没理智了
+     */
+    isChapterMissionEnd:boolean
 }
 
 interface OtherInfo {
@@ -131,6 +134,7 @@ const gameInfo: GameInfo = {
     isTodoCollectionEnd:false,
     isTodoCollectionDailyEnd:false,
     isTodoCollectionWeeklyEnd:false,
+    isChapterMissionEnd:false,
 }
 
 export {

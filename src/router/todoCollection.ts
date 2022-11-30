@@ -40,8 +40,9 @@ const todoCollection: Route[] = [
                 await delay(300)
                 await clickCollectAll()
                 gameInfo.isTodoCollectionDailyEnd = true
+                return
             }
-            // 周长任务没收集 1238/1849 =
+            // 周长任务没收集
             if (!gameInfo.isTodoCollectionWeeklyEnd) {
                 console.log('周长任务没收集');
                 console.log('点击周长任务');
@@ -50,12 +51,11 @@ const todoCollection: Route[] = [
                 await delay(300)
                 await clickCollectAll()
                 gameInfo.isTodoCollectionWeeklyEnd = true
+                return
             }
 
-            if (gameInfo.isTodoCollectionDailyEnd && gameInfo.isTodoCollectionWeeklyEnd) {
-                console.log('日常任务和周长任务都收集完了,任务收集流程结束');
-                finish()
-            }
+            console.log('日常任务和周长任务都收集完了,任务收集流程结束');
+            finish()
 
 
         }
@@ -65,7 +65,7 @@ const todoCollection: Route[] = [
         keywords: {
             include: ['获得物资'],
         },
-        action: async function ({ocrResult}) {
+        action: async function () {
             await clickCenterTop()
         }
     },

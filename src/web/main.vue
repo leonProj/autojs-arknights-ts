@@ -1,6 +1,7 @@
 <template>
   <div class="page">
     <div class="content">
+      <h3>收菜</h3>
       <van-notice-bar left-icon="info-o" v-if="!accessibilityEnable">
         无障碍服务未开启
         <template #right-icon>
@@ -15,11 +16,14 @@
       </van-notice-bar>
       <van-grid clickable :column-num="2" :border="false">
         <van-grid-item>
-          <van-button v-if="!isRun" :color="mainColor" @click="start">开始运行</van-button>
+          <van-button v-if="(!isRun) || (isRun && runningTask !== RUNNING_TASK.main)" :color="mainColor"
+                      @click="start(RUNNING_TASK.main)" :disabled="(isRun && runningTask !== RUNNING_TASK.main)">开始运行
+          </van-button>
           <van-space v-else>
-            <van-button :color="dangerColor" @click="stop" :loading="isStopping" loading-text="停止中...">停止运行
+            <van-button :color="dangerColor" @click="stop" :loading="isStopping && runningTask === RUNNING_TASK.main"
+                        loading-text="停止中...">停止运行
             </van-button>
-            <van-button v-if="!isStopping" loading :color="mainColor"/>
+            <van-button v-if="!isStopping && runningTask === RUNNING_TASK.main" loading :color="mainColor"/>
           </van-space>
         </van-grid-item>
         <van-grid-item>
@@ -33,7 +37,25 @@
           </template>
         </van-cell>
       </van-cell-group>
+      <h3>刷关</h3>
+      <van-grid clickable :column-num="2" :border="false">
+        <van-grid-item>
+          <van-button v-if="(!isRun )|| (isRun && runningTask !== RUNNING_TASK.mission)" :color="mainColor"
+                      @click="start(RUNNING_TASK.mission)" :disabled="(isRun && runningTask !== RUNNING_TASK.mission)">开始刷关卡
+          </van-button>
+          <van-space v-else>
+            <van-button v-if="!isStopping && runningTask === RUNNING_TASK.mission" loading :color="mainColor"/>
+            <van-button :color="dangerColor" @click="stop" :loading="isStopping && runningTask === RUNNING_TASK.mission"
+                        loading-text="停止中...">停止运行
+            </van-button>
+          </van-space>
+        </van-grid-item>
+        <van-grid-item>
+          <van-button :color="normalColor" @click="showLog">查看日志</van-button>
+        </van-grid-item>
+      </van-grid>
     </div>
+
   </div>
 </template>
 <script>
@@ -43,6 +65,7 @@ export default {
     $autojs.invoke("created").then((param) => {
       this.tasks = param.tasks;
       this.gameInfo = param.gameInfo;
+      this.RUNNING_TASK = param.RUNNING_TASK;
     });
     this.checkAccessibilityEnable()
     this.checkOverlayEnable()
@@ -81,6 +104,12 @@ export default {
         isTodoCollectionEnd: true
       }
     }
+    window.chapterMissionEnd = () => {
+      this.gameInfo = {
+        ...this.gameInfo,
+        isChapterMissionEnd: true
+      }
+    }
 
   },
   data() {
@@ -89,10 +118,12 @@ export default {
     this.dangerColor = '#DE2E4F'
     this.normalColor = '#525053'
     return {
+      RUNNING_TASK: null,// 当前运行的任务的字典
+      runningTask: '',//当前运行的任务
       isRun: false,// 脚本是否正在运行
       isStopping: false,// 脚本是否正在停止
-      accessibilityEnable:true,// 无障碍服务是否开启
-      overlayEnable:true,// 悬浮窗权限是否开启
+      accessibilityEnable: true,// 无障碍服务是否开启
+      overlayEnable: true,// 悬浮窗权限是否开启
       tasks: null,
       gameInfo: null,
     };
@@ -102,22 +133,29 @@ export default {
     showLog() {
       $autojs.invoke("show-log");
     },
+    beforeStart() {
+      if (!this.accessibilityEnable) {
+        Notify({type: 'danger', message: '请先开启无障碍服务'});
+        return false
+      }
+      if (!this.overlayEnable) {
+        Notify({type: 'danger', message: '请先开启悬浮窗权限'});
+        return false
+      }
+
+      return true
+    },
     // 开始运行
-    start() {
-      if(!this.accessibilityEnable ){
-        Notify({ type: 'danger', message: '请先开启无障碍服务' });
-        return
+    start(runningTask) {
+      if (this.beforeStart()) {
+        this.runningTask = runningTask
+        this.isRun = true;
+        $autojs.invoke("start", {runningTask});
       }
-      if(!this.overlayEnable ){
-        Notify({ type: 'danger', message: '请先开启悬浮窗权限' });
-        return
-      }
-      this.isRun = true;
-      $autojs.invoke("start");
     },
     stop() {
       this.isStopping = true;
-      $autojs.invoke("stop");
+      $autojs.invoke("stop")
     },
     /**
      * 游戏信息开关改变,通知安卓改变安卓的gameInfo数据
