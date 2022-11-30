@@ -473,7 +473,7 @@ const construction: Route[] = [
                 // 滚动条在末端时候的位置 和 颜色
                 const scrollColorKey = '#69696c'
                 const scrollX = 0.979 * (deviceInfo.smallWidth as number)
-                const scrollY = 0.914 * (deviceInfo.smallHeight as number)
+                const scrollY = 0.930 * (deviceInfo.smallHeight as number)
                 console.log(capture.pixel(scrollX, scrollY))
                 // 判断是否滚动条到底部
                 const isScrollEnd = detectsColor(capture, Color.parse(scrollColorKey), scrollX, scrollY, {threshold: 50})
