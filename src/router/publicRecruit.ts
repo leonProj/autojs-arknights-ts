@@ -96,7 +96,7 @@ const publicRecruit: Route[] = [
                 let jobRequire: HrOcrResultItem | null = null;
                 let budget: HrOcrResultItem | null = null
                 ocrResult.forEach(item => {
-                    if (item.text === '招募时限') {
+                    if (item.text.includes('招募时限') ) {
                         timeLimit = item
                     }
                     if (item.text === '职业需求') {
