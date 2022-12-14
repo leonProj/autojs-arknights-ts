@@ -452,11 +452,11 @@ const construction: Route[] = [
                             }
                             // 点击原来工作中的干员
                             const excludeEmptyArr = statusArr.filter(item => item !== '空闲')
-                            for (const item of excludeEmptyArr) {
-                                const index = excludeEmptyArr.indexOf(item);
+                            for(let i = 0; i < excludeEmptyArr.length; i++) {
+                                const item = excludeEmptyArr[i]
                                 if(item === '工作中') {
-                                    await click(locationArr[index].x, locationArr[index].y)
-                                    console.log(`点击第${index + 1}个干员`)
+                                    await click(locationArr[i].x, locationArr[i].y)
+                                    console.log(`点击第${i + 1}个干员`)
                                 }
                             }
                             // 点击确认按钮
