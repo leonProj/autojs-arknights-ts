@@ -37,6 +37,7 @@ const chapterMission: Route[] = [
         describe: '关卡结束界面',
         keywords: {
             include: ['行动结束','全员信赖提升'],
+            ocrFix:{'给':'结'}
         },
         action: async function ({ocrResult}) {
             await clickCenterTop()
