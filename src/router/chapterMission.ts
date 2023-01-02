@@ -27,10 +27,12 @@ const chapterMission: Route[] = [
     {
         describe: '关卡界面_点击开始行动后的界面',
         keywords: {
-            include: ['本次行动配置不可更改','开始','行动'],
+            include: ['本次行动配置不可更改'],
         },
         action: async function ({ocrResult}) {
-            await clickByHrOcrResultAndText(ocrResult, '开始')
+            const x = 0.859 * (deviceInfo.longSide as number)
+            const y = 0.745 * (deviceInfo.shortSide as number)
+            await click(x, y)
         }
     },
     {
