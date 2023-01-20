@@ -68,6 +68,15 @@ const chapterMission: Route[] = [
             finish()
         }
     },
+    {
+        describe: '继续结算',
+        keywords: {
+            include: ['继续结算'],
+        },
+        action: async function ({ocrResult}) {
+            await clickByHrOcrResultAndText(ocrResult, '继续结算')
+        }
+    },
 ]
 export {
     chapterMission
