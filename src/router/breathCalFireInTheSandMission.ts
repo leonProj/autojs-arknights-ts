@@ -23,12 +23,23 @@ const finish = () => {
 
 const breathCalFireInTheSandMission: Route[] = [
     {
-        describe: '主界面',
+        describe: '主界面1',
         keywords: {
-            include: ['开始', '演算', '沙中之火'],
+            include: ['开始', '演算', '沙','火'],
         },
         action: async function ({ocrResult}) {
             await clickByHrOcrResultAndText(ocrResult, '开始')
+            // 等待淡入动画
+            await delay(1500)
+        }
+    },
+    {
+        describe: '主界面2',
+        keywords: {
+            include: ['继续', '演算', '沙','火'],
+        },
+        action: async function ({ocrResult}) {
+            await clickByHrOcrResultAndText(ocrResult, '继续')
             // 等待淡入动画
             await delay(1500)
         }
