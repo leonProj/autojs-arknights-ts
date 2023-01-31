@@ -219,11 +219,10 @@ const breathCalFireInTheSandMission: Route[] = [
     {
         describe: '行动结束界面',
         keywords: {
-            include: ['行动结束'],
-            ocrFix:{'弟':'束'}
+            include: ['行动结'],
         },
         action: async function ({ocrResult}) {
-            await clickByHrOcrResultAndText(ocrResult, '行动结束')
+            await clickCenterTop()
             // 等待淡入动画
             await delay(4000)
         }
@@ -240,6 +239,17 @@ const breathCalFireInTheSandMission: Route[] = [
             await click(x, y)
             // 等待淡入动画
             await delay(700)
+        }
+    },
+    {
+        describe: '决断DD,没有日报的时候',
+        keywords: {
+            include: ['决断DD'],
+        },
+        action: async function ({ocrResult}) {
+           await clickCenter()
+            // 等待淡入动画
+            await delay(1500)
         }
     },
     {
