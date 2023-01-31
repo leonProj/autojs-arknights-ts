@@ -244,7 +244,6 @@ async function missionRun() {
 export const initBreathCalFireInTheSandGameInfo = () => {
     gameInfo.isBreathCalFireInTheSandEmergency = false
     gameInfo.isBreathCalFireInTheSandEmergencyDoubleTime = false
-    gameInfo.breathCalFireInTheSandResCount=0
 }
 async function breathCalFireInTheSandRun() {
     // 初始化

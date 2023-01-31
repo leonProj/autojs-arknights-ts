@@ -21,6 +21,8 @@ const finish = () => {
     callVueMethod('breathCalFireInTheSandEnd')
 }
 
+let decCount = 0 // 决断使用次数
+
 const  prepareAction = async () => {
     //行动准备 1517/1710=0.886  882/961=0.918
     const x1 = 0.886 * (deviceInfo.longSide as number)
@@ -85,6 +87,7 @@ const breathCalFireInTheSandMission: Route[] = [
             const x2 = 0.81 * (deviceInfo.longSide as number)
             const y2 = 0.907 * (deviceInfo.shortSide as number)
             await click(x2, y2)
+            await delay(1500)
         }
     },
     {
@@ -134,34 +137,27 @@ const breathCalFireInTheSandMission: Route[] = [
         describe: '地图中间放大后的界面',
         keywords: {
             include: ['资源区'],
-            exclude:['敌人详情','关卡地图','紧急','事态','Industry','News'],
+            exclude:['敌人详情','关卡地图','紧急','事态','Industry','News','行动'],
         },
         action: async function ({ocrResult}) {
-            console.log('资源区gameInfo.breathCalFireInTheSandResCount',gameInfo.breathCalFireInTheSandResCount)
-            // 资源打两次
-            if(gameInfo.breathCalFireInTheSandResCount<2){
-                await clickByHrOcrResultAndText(ocrResult, '资源区')
-                // 等待淡入动画
-                await delay(1500)
-            }
-            // 进入下一天
-            else {
-                // 1602/1725=0.928  65/972=0.0669
-                await delay(1500)
-                const x = 0.922 * (deviceInfo.longSide as number)
-                const y = 0.0669 * (deviceInfo.shortSide as number)
-                console.log('点击进入下一天');
-                await click(x, y)
-                await delay(200)
-                console.log('点击进入下一天');
-                await click(x, y)
-                await delay(200)
-                console.log('点击进入下一天');
-                await click(x, y)
-                gameInfo.breathCalFireInTheSandResCount=0
-                // 等待淡入动画
-                await delay(4000)
-            }
+            await clickByHrOcrResultAndText(ocrResult, '资源区')
+            await delay(1000)
+        }
+    },
+    {
+        describe: '点数不足的界面',
+        keywords: {
+            include: ['进入下一天'],
+        },
+        action: async function () {
+            // 1701/1846=0.922  56/1023=0.055
+            const x = 0.922 * (deviceInfo.longSide as number)
+            const y = 0.055 * (deviceInfo.shortSide as number)
+            await click(x, y)
+            // 决断次数重置
+            decCount = 0
+            // 等待淡入动画
+            await delay(4000)
         }
     },
     {
@@ -173,15 +169,12 @@ const breathCalFireInTheSandMission: Route[] = [
             // 开始行动
             const x = 0.9 * (deviceInfo.longSide as number)
             const y = 0.88 * (deviceInfo.shortSide as number)
-            console.log('点击开始行动',)
-            gameInfo.breathCalFireInTheSandResCount++
+            console.log('点击开始行动')
             await click(x, y)
             await delay(1000)
-
-            await prepareAction()
-            await delay(1500)
-
-            console.log('gameInfo.breathCalFireInTheSandResCount',gameInfo.breathCalFireInTheSandResCount)
+            if(decCount<2){
+                await prepareAction()
+            }
         }
     },
     {
@@ -191,7 +184,7 @@ const breathCalFireInTheSandMission: Route[] = [
 
         },
         action: async function ({ocrResult, capture}) {
-            await delay(2500)
+            await delay(2000)
             // 打紧急关卡
             if(gameInfo.isBreathCalFireInTheSandEmergency){
                 // 是否开启了两倍速 没开就点一下
@@ -217,6 +210,9 @@ const breathCalFireInTheSandMission: Route[] = [
                 const y1 = 0.594 * (deviceInfo.shortSide as number)
                 await click(x1, y1)
                 await delay(2000)
+
+                // 决断使用次数加1
+                decCount++
             }
         }
     },
@@ -224,6 +220,7 @@ const breathCalFireInTheSandMission: Route[] = [
         describe: '行动结束界面',
         keywords: {
             include: ['行动结束'],
+            ocrFix:{'弟':'束'}
         },
         action: async function ({ocrResult}) {
             await clickByHrOcrResultAndText(ocrResult, '行动结束')
