@@ -57,6 +57,12 @@
       </van-grid>
 
       <h3>沙中之火</h3>
+      <span>已经摆烂了 {{breathCalFireInTheSandCount}} 次</span><a @click="clearBreathCalFireInTheSandCount">清空</a>
+      <van-field name="stepper" label="最大摆烂次数">
+        <template #input>
+          <van-stepper v-model="breathCalFireInTheSandMaxCount" :min="1" :disable-input="true"/>
+        </template>
+      </van-field>
       <van-grid clickable :column-num="2" :border="false">
         <van-grid-item>
           <van-button v-if="(!isRun )|| (isRun && runningTask !== RUNNING_TASK.fireInTheSandEnd)" :color="mainColor"
@@ -65,7 +71,7 @@
           <van-space v-else>
             <van-button v-if="!isStopping && runningTask === RUNNING_TASK.fireInTheSandEnd" loading :color="mainColor"/>
             <van-button :color="dangerColor" @click="stop" :loading="isStopping && runningTask === RUNNING_TASK.fireInTheSandEnd"
-                        loading-text="停止中...">停止运行
+                        loading-text="停止中...">停止摆烂
             </van-button>
           </van-space>
         </van-grid-item>
@@ -135,6 +141,12 @@ export default {
         isBreathCalFireInTheSandEnd: true
       }
     }
+    window.breathCalFireInTheSandCountAdd = () => {
+      this.breathCalFireInTheSandCount++
+      if(this.breathCalFireInTheSandCount===this.breathCalFireInTheSandMaxCount){
+        this.endBreathCalFireInTheSand()
+      }
+    }
 
   },
   data() {
@@ -151,6 +163,8 @@ export default {
       overlayEnable: true,// 悬浮窗权限是否开启
       tasks: null,
       gameInfo: null,
+      breathCalFireInTheSandCount: 0,// 摆烂次数
+      breathCalFireInTheSandMaxCount: 10 // 摆烂最大次数
     };
   },
   methods: {
@@ -181,6 +195,9 @@ export default {
     stop() {
       this.isStopping = true;
       $autojs.invoke("stop")
+    },
+    endBreathCalFireInTheSand(){
+      $autojs.invoke("endBreathCalFireInTheSand")
     },
     /**
      * 游戏信息开关改变,通知安卓改变安卓的gameInfo数据
@@ -217,6 +234,9 @@ export default {
       $autojs.invoke("enableOverlay").then(() => {
         this.checkOverlayEnable()
       });
+    },
+    clearBreathCalFireInTheSandCount(){
+      this.breathCalFireInTheSandCount = 0
     }
   },
 };

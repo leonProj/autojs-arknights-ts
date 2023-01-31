@@ -221,7 +221,7 @@ const breathCalFireInTheSandMission: Route[] = [
             const y = 0.055 * (deviceInfo.shortSide as number)
             await click(x, y)
             // 等待淡入动画
-            await delay(6000)
+            await delay(5000)
         }
     },
     {
@@ -281,7 +281,7 @@ const breathCalFireInTheSandMission: Route[] = [
             await clickByHrOcrResultAndText(ocrResult, '决断D1)开始行动')
             gameInfo.isBreathCalFireInTheSandEmergency = true
             // 等待淡入动画
-            await delay(1500)
+            await delay(6000)
         }
     },
     {
@@ -322,6 +322,7 @@ const breathCalFireInTheSandMission: Route[] = [
         },
         action: async function () {
             await clickCenterTop()
+            callVueMethod('breathCalFireInTheSandCountAdd')
             // 等待淡入动画
             await delay(1000)
         }
@@ -339,7 +340,7 @@ const breathCalFireInTheSandMission: Route[] = [
     {
         describe: '脚本界面',
         keywords: {
-            include: ['开始运行'],
+            include: ['刷关'],
         },
         action: async function () {
             otherInfo.forceStop = true

@@ -98,6 +98,10 @@ class WebActivity extends ui.Activity {
         jsBridge.handle('stop', () => {
             otherInfo.forceStop = true;
         });
+        // endBreathCalFireInTheSand
+        jsBridge.handle('endBreathCalFireInTheSand', () => {
+            gameInfo.isBreathCalFireInTheSandEnd = true;
+        })
         //开启障碍服务
         jsBridge.handle('enableAccessibility', async () => {
             await accessibility.enableService({toast: false})
@@ -114,6 +118,7 @@ class WebActivity extends ui.Activity {
         jsBridge.handle('checkOverlayEnable', () => {
             return canDrawOverlays()
         })
+
 
 
     }

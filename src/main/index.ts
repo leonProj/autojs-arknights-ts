@@ -252,7 +252,7 @@ async function breathCalFireInTheSandRun() {
         }
         // 流程完成后停止
         if(gameInfo.isBreathCalFireInTheSandEnd){
-            await alert(`沙火结束`);
+            await alert(`沙火摆烂结束`);
             gameInfo.isBreathCalFireInTheSandEnd = false
             stop();
             break
