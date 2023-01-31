@@ -20,6 +20,29 @@ const finish = () => {
     callVueMethod('breathCalFireInTheSandEnd')
 }
 
+const  prepareAction = async () => {
+    //行动准备 1517/1710=0.886  882/961=0.918
+    const x1 = 0.886 * (deviceInfo.longSide as number)
+    const y1 = 0.918 * (deviceInfo.shortSide as number)
+    await click(x1, y1)
+    // 等待淡入动画
+    await delay(1000)
+
+    // 开始行动
+    const x2 = 0.882 * (deviceInfo.longSide as number)
+    const y2 = 0.452 * (deviceInfo.shortSide as number)
+    await click(x2, y2)
+    // 等待淡入动画
+    await delay(1000)
+
+    // 确认弹框 1288/1711=0.752  663/962=0.689
+    const x3 = 0.752 * (deviceInfo.longSide as number)
+    const y3 = 0.689 * (deviceInfo.shortSide as number)
+    await click(x3, y3)
+    // 等待淡入动画
+    await delay(6000)
+}
+
 
 const breathCalFireInTheSandMission: Route[] = [
     {
@@ -124,26 +147,7 @@ const breathCalFireInTheSandMission: Route[] = [
             // 等待淡入动画
             await delay(1500)
 
-            //行动准备 1517/1710=0.886  882/961=0.918
-            const x1 = 0.886 * (deviceInfo.longSide as number)
-            const y1 = 0.918 * (deviceInfo.shortSide as number)
-            await click(x1, y1)
-            // 等待淡入动画
-            await delay(1000)
-
-            // 开始行动
-            const x2 = 0.882 * (deviceInfo.longSide as number)
-            const y2 = 0.452 * (deviceInfo.shortSide as number)
-            await click(x2, y2)
-            // 等待淡入动画
-            await delay(1000)
-
-            // 确认弹框 1288/1711=0.752  663/962=0.689
-            const x3 = 0.752 * (deviceInfo.longSide as number)
-            const y3 = 0.689 * (deviceInfo.shortSide as number)
-            await click(x3, y3)
-            // 等待淡入动画
-            await delay(6000)
+            await prepareAction()
 
         }
     },
@@ -240,8 +244,10 @@ const breathCalFireInTheSandMission: Route[] = [
             const x = 0.789 * (deviceInfo.longSide as number)
             const y = 0.879 * (deviceInfo.shortSide as number)
             await click(x, y)
-            // 等待淡入动画
-            await delay(6000)
+            await delay(1500)
+
+            await prepareAction()
+            gameInfo.isBreathCalFireInTheSandEmergency = true
         }
     },
     {
@@ -265,14 +271,8 @@ const breathCalFireInTheSandMission: Route[] = [
             await click(x2, y2)
             // 等待淡入动画
             await delay(1000)
-        }
-    },
-    {
-        describe: '获得物资',
-        keywords: {
-            include: ['获得物资'],
-        },
-        action: async function () {
+
+            // 获得物资
             await clickCenterTop()
             callVueMethod('breathCalFireInTheSandCountAdd')
             // 等待淡入动画
