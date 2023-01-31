@@ -77,7 +77,7 @@ const geCurRoute = (gameRouter: Route[], ocrText: string): GeCurRouteType | unde
         const ocrFixText = isNeedOcrFix ? ocrFix(ocrText, route.keywords.ocrFix) : ocrText
 
         // 判断单个路由中关键词是否匹配
-        const isIncludeMatch = route.keywords.include.every((keyword) => {
+        let isIncludeMatch = route.keywords.include?.every((keyword) => {
             // 是数组 ，数组中的任意一个匹配即可
             if (Array.isArray(keyword)) {
                 return keyword.some((item) => ocrFixText.includes(item))
@@ -86,10 +86,16 @@ const geCurRoute = (gameRouter: Route[], ocrText: string): GeCurRouteType | unde
             else
                 return ocrFixText.includes(keyword)
         })
+        if(!route.keywords.include){
+            isIncludeMatch = true
+        }
         // 判断单个路由中排除关键词是否匹配
         const isExcludeMatch = route.keywords.exclude?.some(keyword => ocrFixText.includes(keyword));
         // 判断单个路由中【有一个就行的】关键词是否匹配
-        const isIncludeOneMatch = route.keywords.includeOne?.some(keyword => ocrFixText.includes(keyword)) || true;
+        let isIncludeOneMatch = route.keywords.includeOne?.some(keyword => ocrFixText.includes(keyword))
+        if(!route.keywords.includeOne){
+            isIncludeOneMatch = true
+        }
         // 匹配成功
         if (isIncludeMatch && !isExcludeMatch && isIncludeOneMatch) {
             return {route, isNeedOcrFix, ocrFixText}

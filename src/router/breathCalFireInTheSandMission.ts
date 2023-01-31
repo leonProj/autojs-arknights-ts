@@ -51,11 +51,16 @@ const breathCalFireInTheSandMission: Route[] = [
         },
         action: async function () {
             // 1302/1412= 0.92 55/789=0.0699
-            const x = 0.92 * (deviceInfo.longSide as number)
-            const y = 0.0699 * (deviceInfo.shortSide as number)
-            await click(x, y)
+            const x1 = 0.92 * (deviceInfo.longSide as number)
+            const y1 = 0.0699 * (deviceInfo.shortSide as number)
+            await click(x1, y1)
             // 等待淡入动画
             await delay(1500)
+
+            // 全队补充界面 1441/1771=0.81   873/962=0.907
+            const x2 = 0.81 * (deviceInfo.longSide as number)
+            const y2 = 0.907 * (deviceInfo.shortSide as number)
+            await click(x2, y2)
         }
     },
     {
@@ -93,14 +98,7 @@ const breathCalFireInTheSandMission: Route[] = [
             await click(x, y)
             // 等待淡入动画
             await delay(1500)
-        }
-    },
-    {
-        describe: '地图界面',
-        keywords: {
-            include: ['决断', 'DD'],// DD是决断下面的那个箭头，被识别成了DD
-        },
-        action: async function () {
+
             // 点击中间放大地图
             await clickCenter()
             // 等待淡入动画
@@ -117,57 +115,36 @@ const breathCalFireInTheSandMission: Route[] = [
             await clickByHrOcrResultAndText(ocrResult, '资源区')
             // 等待淡入动画
             await delay(1000)
-        }
-    },
-    {
-        describe: '开始行动界面',
-        keywords: {
-            include: ['敌人详情','关卡地图'],
-            exclude: ['进入下一天']
-        },
-        action: async function () {
+
+            // 开始行动
             // 1674/1902=0.879 938/1067=0.879
             const x = 0.879 * (deviceInfo.longSide as number)
             const y = 0.879 * (deviceInfo.shortSide as number)
             await click(x, y)
             // 等待淡入动画
             await delay(1500)
-        }
-    },
-    {
-        describe: '行动准备界面',
-        keywords: {
-            include: ['行动准备'],
-        },
-        action: async function ({ocrResult}) {
-            await clickByHrOcrResultAndText(ocrResult, '行动准备')
+
+            //行动准备 1517/1710=0.886  882/961=0.918
+            const x1 = 0.886 * (deviceInfo.longSide as number)
+            const y1 = 0.918 * (deviceInfo.shortSide as number)
+            await click(x1, y1)
             // 等待淡入动画
             await delay(1000)
-        }
-    },
-    {
-        describe: '行动准备开始行动界面',
-        keywords: {
-            include: ['工具箱', '决断'],
-        },
-        action: async function () {
-            // 1244/1412=0.882  360/792=0.452
-            const x = 0.882 * (deviceInfo.longSide as number)
-            const y = 0.452 * (deviceInfo.shortSide as number)
-            await click(x, y)
+
+            // 开始行动
+            const x2 = 0.882 * (deviceInfo.longSide as number)
+            const y2 = 0.452 * (deviceInfo.shortSide as number)
+            await click(x2, y2)
             // 等待淡入动画
             await delay(1000)
-        }
-    },
-    {
-        describe: '编队没人警告弹框',
-        keywords: {
-            include: ['确认开始行动', '没有可以上场的干员'],
-        },
-        action: async function ({ capture}) {
-            await clickRedConFirm(capture)
+
+            // 确认弹框 1288/1711=0.752  663/962=0.689
+            const x3 = 0.752 * (deviceInfo.longSide as number)
+            const y3 = 0.689 * (deviceInfo.shortSide as number)
+            await click(x3, y3)
             // 等待淡入动画
             await delay(6000)
+
         }
     },
     {
@@ -196,18 +173,13 @@ const breathCalFireInTheSandMission: Route[] = [
                 await click(x, y)
                 // 等待淡入动画
                 await delay(1000)
+
+                // 确认离开界面 1379/1708=0.806  569/961=0.594
+                const x1 = 0.806 * (deviceInfo.longSide as number)
+                const y1 = 0.594 * (deviceInfo.shortSide as number)
+                await click(x1, y1)
+                await delay(2000)
             }
-        }
-    },
-    {
-        describe: '确认离开界面',
-        keywords: {
-            include: ['确认离开'],
-        },
-        action: async function ({ocrResult}) {
-            await clickByHrOcrResultAndText(ocrResult, '确认离开')
-            // 等待淡入动画
-            await delay(2000)
         }
     },
     {
@@ -253,50 +225,27 @@ const breathCalFireInTheSandMission: Route[] = [
     {
         describe: '紧急事态界面',
         keywords: {
-            include: ['零洁','孕'], // 紧急事态被识别成了这几个字 笑死
+            includeOne:['事态','零洁']
         },
         action: async function () {
             await clickCenter()
             // 等待淡入动画
             await delay(1500)
-        }
-    },
-    {
-        describe: '紧急事态 点击地图界面',
-        keywords: {
-            include: ['紧急','事态','区'], // 紧急事态又能识别正确了 离谱
-        },
-        action: async function () {
+
             await clickCenter()
             // 等待淡入动画
-            await delay(1000)
-        }
-    },
-    {
-        describe: '紧急事态 点击地图界面',
-        keywords: {
-            include: ['紧急','事态','区'], // 紧急事态又能识别正确了 离谱
-        },
-        action: async function () {
-            await clickCenter()
-            // 等待淡入动画
-            await delay(1000)
-        }
-    },
-    {
-        describe: '紧急事态开始行动界面',
-        keywords: {
-            include: ['决断D1)开始行动'],
-        },
-        action: async function ({ocrResult}) {
-            await clickByHrOcrResultAndText(ocrResult, '决断D1)开始行动')
-            gameInfo.isBreathCalFireInTheSandEmergency = true
+            await delay(1500)
+
+            // 开始行动 1349/1710=0.789  842/958=0.879
+            const x = 0.789 * (deviceInfo.longSide as number)
+            const y = 0.879 * (deviceInfo.shortSide as number)
+            await click(x, y)
             // 等待淡入动画
             await delay(6000)
         }
     },
     {
-        describe: '结算界面1',
+        describe: '结算界面',
         keywords: {
             include: ['天数','得分'],
         },
@@ -305,23 +254,15 @@ const breathCalFireInTheSandMission: Route[] = [
             gameInfo.isBreathCalFireInTheSandEmergency = false
             gameInfo.isBreathCalFireInTheSandEmergencyDoubleTime = false
             // 1681/1846=0.910  900/1023=0.881
-            const x = 0.910 * (deviceInfo.longSide as number)
-            const y = 0.881 * (deviceInfo.shortSide as number)
-            await click(x, y)
+            const x1 = 0.910 * (deviceInfo.longSide as number)
+            const y1 = 0.881 * (deviceInfo.shortSide as number)
+            await click(x1, y1)
             // 等待淡入动画
-            await delay(1000)
-        }
-    },
-    {
-        describe: '结算界面2',
-        keywords: {
-            include: ['总分'],
-        },
-        action: async function () {
-            // 1747/1846=0.946  905/1023=0.888
-            const x = 0.946 * (deviceInfo.longSide as number)
-            const y = 0.888 * (deviceInfo.shortSide as number)
-            await click(x, y)
+            await delay(1500)
+
+            const x2 = 0.946 * (deviceInfo.longSide as number)
+            const y2 = 0.888 * (deviceInfo.shortSide as number)
+            await click(x2, y2)
             // 等待淡入动画
             await delay(1000)
         }

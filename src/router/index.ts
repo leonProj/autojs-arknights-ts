@@ -48,7 +48,7 @@ interface RouterKeywords {
      * @description 包含数组中所有的子项目。1 子项为字符串时直接判断。 2 子项为数组时候，数组中有一个字符串符合即可,为了ocr容错
      * @example 1. '首页'  2. ['首页', '手页']
      */
-    include: (string | string[])[]
+    include?: (string | string[])[]
     /**
      * @description 不包含数组中所有的文字
      */
