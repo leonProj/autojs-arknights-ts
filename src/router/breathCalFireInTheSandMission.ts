@@ -133,7 +133,7 @@ const breathCalFireInTheSandMission: Route[] = [
     {
         describe: '地图中间放大后的界面',
         keywords: {
-            include: ['资源区', '捕猎区'],
+            include: ['资源区'],
             exclude:['敌人详情','关卡地图','紧急','事态','Industry','News'],
         },
         action: async function ({ocrResult}) {
