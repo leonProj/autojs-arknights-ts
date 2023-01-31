@@ -7,7 +7,7 @@ import {
 } from "@/utils/accessibilityUtil";
 import {Route} from "@/router/index";
 import {deviceInfo, gameInfo, otherInfo} from "@/state";
-import {click} from "accessibility";
+import {click, press} from "accessibility";
 import {delay} from "lang";
 import {callVueMethod} from "@/utils/webviewUtil";
 import {initBreathCalFireInTheSandGameInfo} from "@/main";
@@ -41,7 +41,7 @@ const  prepareAction = async () => {
     const y3 = 0.689 * (deviceInfo.shortSide as number)
     await click(x3, y3)
     // 等待淡入动画
-    await delay(6000)
+    await delay(2000)
 }
 
 
@@ -121,7 +121,7 @@ const breathCalFireInTheSandMission: Route[] = [
             const y = 0.944 * (deviceInfo.shortSide as number)
             await click(x, y)
             // 等待淡入动画
-            await delay(1500)
+            await delay(600)
 
             // 点击中间放大地图
             console.log('点击中间放大地图')
@@ -137,6 +137,7 @@ const breathCalFireInTheSandMission: Route[] = [
             exclude:['敌人详情','关卡地图','紧急','事态','Industry','News'],
         },
         action: async function ({ocrResult}) {
+            console.log('资源区gameInfo.breathCalFireInTheSandResCount',gameInfo.breathCalFireInTheSandResCount)
             // 资源打两次
             if(gameInfo.breathCalFireInTheSandResCount<2){
                 await clickByHrOcrResultAndText(ocrResult, '资源区')
@@ -145,12 +146,21 @@ const breathCalFireInTheSandMission: Route[] = [
             }
             // 进入下一天
             else {
-                gameInfo.breathCalFireInTheSandResCount=0
+                // 1602/1725=0.928  65/972=0.0669
+                await delay(1500)
                 const x = 0.922 * (deviceInfo.longSide as number)
-                const y = 0.055 * (deviceInfo.shortSide as number)
+                const y = 0.0669 * (deviceInfo.shortSide as number)
+                console.log('点击进入下一天');
                 await click(x, y)
+                await delay(200)
+                console.log('点击进入下一天');
+                await click(x, y)
+                await delay(200)
+                console.log('点击进入下一天');
+                await click(x, y)
+                gameInfo.breathCalFireInTheSandResCount=0
                 // 等待淡入动画
-                await delay(5000)
+                await delay(4000)
             }
         }
     },
@@ -170,6 +180,8 @@ const breathCalFireInTheSandMission: Route[] = [
 
             await prepareAction()
             await delay(1500)
+
+            console.log('gameInfo.breathCalFireInTheSandResCount',gameInfo.breathCalFireInTheSandResCount)
         }
     },
     {
@@ -179,6 +191,7 @@ const breathCalFireInTheSandMission: Route[] = [
 
         },
         action: async function ({ocrResult, capture}) {
+            await delay(2500)
             // 打紧急关卡
             if(gameInfo.isBreathCalFireInTheSandEmergency){
                 // 是否开启了两倍速 没开就点一下
