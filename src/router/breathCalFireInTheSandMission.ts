@@ -336,6 +336,26 @@ const breathCalFireInTheSandMission: Route[] = [
             await delay(5000)
         }
     },
+    {
+        describe: '关卡掉落显示',
+        keywords: {
+            include: ['主要掉落'],
+        },
+        action: async function () {
+            // 取消遮罩
+            await clickCenterTop()
+            await delay(500)
+            // 下一天
+            const x = 0.922 * (deviceInfo.longSide as number)
+            const y = 0.055 * (deviceInfo.shortSide as number)
+            await click(x, y)
+            // 决断次数重置
+            decCount = 0
+            // 等待淡入动画
+            await delay(4000)
+
+        }
+    },
 
 ]
 
