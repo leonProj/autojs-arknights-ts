@@ -148,6 +148,7 @@ const breathCalFireInTheSandMission: Route[] = [
         describe: '点数不足的界面',
         keywords: {
             include: ['进入下一天'],
+            exclude: ['是否']
         },
         action: async function () {
             // 1701/1846=0.922  56/1023=0.055
