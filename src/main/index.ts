@@ -241,12 +241,16 @@ async function missionRun() {
 /**
  * 生息演算 沙中之火
  */
+export const initBreathCalFireInTheSandGameInfo = () => {
+    gameInfo.isBreathCalFireInTheSandEmergency = false
+    gameInfo.isBreathCalFireInTheSandEmergencyDoubleTime = false
+    gameInfo.breathCalFireInTheSandResCount=0
+}
 async function breathCalFireInTheSandRun() {
     // 初始化
     await init();
     // 初始化数据
-    gameInfo.isBreathCalFireInTheSandEmergency = false
-    gameInfo.isBreathCalFireInTheSandEmergencyDoubleTime = false
+    initBreathCalFireInTheSandGameInfo()
     // 路由列表
     const gameRouter = [...breathCalFireInTheSandMission];
     while (true) {

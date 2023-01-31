@@ -106,6 +106,10 @@ export interface GameInfo {
      * 是否是在打沙中之火紧急事态的关卡点过了二倍速
      */
     isBreathCalFireInTheSandEmergencyDoubleTime:boolean
+    /**
+     * 资源区进入次数
+     */
+    breathCalFireInTheSandResCount:number
 }
 
 interface OtherInfo {
@@ -150,6 +154,7 @@ const gameInfo: GameInfo = {
     isBreathCalFireInTheSandEnd:false,
     isBreathCalFireInTheSandEmergency:false,
     isBreathCalFireInTheSandEmergencyDoubleTime:false,
+    breathCalFireInTheSandResCount:0
 }
 
 export {

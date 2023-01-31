@@ -10,6 +10,7 @@ import {deviceInfo, gameInfo, otherInfo} from "@/state";
 import {click} from "accessibility";
 import {delay} from "lang";
 import {callVueMethod} from "@/utils/webviewUtil";
+import {initBreathCalFireInTheSandGameInfo} from "@/main";
 
 /**
  * @File 生息演算 沙中之火 路由
@@ -26,14 +27,14 @@ const  prepareAction = async () => {
     const y1 = 0.918 * (deviceInfo.shortSide as number)
     await click(x1, y1)
     // 等待淡入动画
-    await delay(1000)
+    await delay(600)
 
     // 开始行动
     const x2 = 0.882 * (deviceInfo.longSide as number)
     const y2 = 0.452 * (deviceInfo.shortSide as number)
     await click(x2, y2)
     // 等待淡入动画
-    await delay(1000)
+    await delay(600)
 
     // 确认弹框 1288/1711=0.752  663/962=0.689
     const x3 = 0.752 * (deviceInfo.longSide as number)
@@ -123,32 +124,45 @@ const breathCalFireInTheSandMission: Route[] = [
             await delay(1500)
 
             // 点击中间放大地图
+            console.log('点击中间放大地图')
             await clickCenter()
             // 等待淡入动画
-            await delay(1000)
+            await delay(1500)
         }
     },
     {
         describe: '地图中间放大后的界面',
         keywords: {
             include: ['资源区', '捕猎区'],
-            exclude:['敌人详情','关卡地图','紧急','事态'],
+            exclude:['敌人详情','关卡地图','紧急','事态','Industry','News'],
         },
         action: async function ({ocrResult}) {
-            await clickByHrOcrResultAndText(ocrResult, '资源区')
-            // 等待淡入动画
-            await delay(1000)
+            // 资源打两次
+            if(gameInfo.breathCalFireInTheSandResCount<2){
+                gameInfo.breathCalFireInTheSandResCount++
+                await clickByHrOcrResultAndText(ocrResult, '资源区')
+                // 等待淡入动画
+                await delay(1700)
 
-            // 开始行动
-            // 1674/1902=0.879 938/1067=0.879
-            const x = 0.879 * (deviceInfo.longSide as number)
-            const y = 0.879 * (deviceInfo.shortSide as number)
-            await click(x, y)
-            // 等待淡入动画
-            await delay(1500)
+                // 开始行动
+                // 1674/1902=0.879 938/1067=0.879
+                const x = 0.879 * (deviceInfo.longSide as number)
+                const y = 0.879 * (deviceInfo.shortSide as number)
+                await click(x, y)
+                // 等待淡入动画
+                await delay(1000)
 
-            await prepareAction()
-
+                await prepareAction()
+            }
+            // 进入下一天
+            else {
+                gameInfo.breathCalFireInTheSandResCount=0
+                const x = 0.922 * (deviceInfo.longSide as number)
+                const y = 0.055 * (deviceInfo.shortSide as number)
+                await click(x, y)
+                // 等待淡入动画
+                await delay(5000)
+            }
         }
     },
     {
@@ -198,32 +212,17 @@ const breathCalFireInTheSandMission: Route[] = [
         }
     },
     {
-        describe: '点数不足的界面',
-        keywords: {
-            include: ['进入下一天'],
-        },
-        action: async function () {
-            // 1701/1846=0.922  56/1023=0.055
-            const x = 0.922 * (deviceInfo.longSide as number)
-            const y = 0.055 * (deviceInfo.shortSide as number)
-            await click(x, y)
-            // 等待淡入动画
-            await delay(5000)
-        }
-    },
-    {
         describe: '播报界面',
         keywords: {
-            include: ['跳过'],
+            include: ['Industry','News'],
         },
         action: async function ({ocrResult}) {
             // 1747/1846=0.946 50/1040=0.048
-            // const x = 0.946 * (deviceInfo.longSide as number)
-            // const y = 0.048 * (deviceInfo.shortSide as number)
-            // await click(x, y)
-            await clickByHrOcrResultAndText(ocrResult, '跳过')
+            const x = 0.946 * (deviceInfo.longSide as number)
+            const y = 0.048 * (deviceInfo.shortSide as number)
+            await click(x, y)
             // 等待淡入动画
-            await delay(2000)
+            await delay(700)
         }
     },
     {
@@ -232,9 +231,9 @@ const breathCalFireInTheSandMission: Route[] = [
             includeOne:['事态','零洁']
         },
         action: async function () {
-            await clickCenter()
-            // 等待淡入动画
-            await delay(1500)
+            // await clickCenter()
+            // // 等待淡入动画
+            // await delay(1500)
 
             await clickCenter()
             // 等待淡入动画
@@ -257,8 +256,7 @@ const breathCalFireInTheSandMission: Route[] = [
         },
         action: async function () {
             // 初始化数据
-            gameInfo.isBreathCalFireInTheSandEmergency = false
-            gameInfo.isBreathCalFireInTheSandEmergencyDoubleTime = false
+            initBreathCalFireInTheSandGameInfo()
             // 1681/1846=0.910  900/1023=0.881
             const x1 = 0.910 * (deviceInfo.longSide as number)
             const y1 = 0.881 * (deviceInfo.shortSide as number)
@@ -292,10 +290,11 @@ const breathCalFireInTheSandMission: Route[] = [
     {
         describe: '脚本界面',
         keywords: {
-            include: ['刷关'],
+            include: ['查看日志'],
         },
         action: async function () {
-            otherInfo.forceStop = true
+            console.log('脚本界面 睡眠5s种');
+            await delay(5000)
         }
     },
 
