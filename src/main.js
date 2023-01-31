@@ -1,4 +1,4 @@
-import {missionRun, run} from "./main";
+import {missionRun, run,breathCalFireInTheSandRun} from "./main";
 
 const ui = require('ui');
 const {readFile} = require('fs').promises;
@@ -62,6 +62,7 @@ class WebActivity extends ui.Activity {
         const RUNNING_TASK = {
             mission: 'mission',// 刷关卡
             main: 'main',// 收菜
+            fireInTheSandEnd:'fireInTheSandEnd',// 沙中之火
         }
         /* 自定义事件 */
         // vue created之后 将安卓数据传递给vue
@@ -81,7 +82,12 @@ class WebActivity extends ui.Activity {
 
         // 开始运行
         jsBridge.handle('start', (event, param) => {
-            let whichRun = param.runningTask === RUNNING_TASK.main ? run : missionRun;
+            const dict ={
+                [RUNNING_TASK.main]:run,
+                [RUNNING_TASK.mission]:missionRun,
+                [RUNNING_TASK.fireInTheSandEnd]:breathCalFireInTheSandRun,
+            }
+            let whichRun = dict[param.runningTask]
             whichRun().catch(async (e) => {
                 stop()
                 console.error(e)

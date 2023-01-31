@@ -94,6 +94,18 @@ export interface GameInfo {
      * 是否关卡已经刷完，刷到没理智了
      */
     isChapterMissionEnd:boolean
+    /**
+     * 是否沙中之火 卡结束
+     */
+    isBreathCalFireInTheSandEnd:boolean
+    /**
+     * 是否正在打沙中之火紧急事态的关卡
+     */
+    isBreathCalFireInTheSandEmergency:boolean
+    /**
+     * 是否是在打沙中之火紧急事态的关卡点过了二倍速
+     */
+    isBreathCalFireInTheSandEmergencyDoubleTime:boolean
 }
 
 interface OtherInfo {
@@ -135,6 +147,9 @@ const gameInfo: GameInfo = {
     isTodoCollectionDailyEnd:false,
     isTodoCollectionWeeklyEnd:false,
     isChapterMissionEnd:false,
+    isBreathCalFireInTheSandEnd:false,
+    isBreathCalFireInTheSandEmergency:false,
+    isBreathCalFireInTheSandEmergencyDoubleTime:false,
 }
 
 export {

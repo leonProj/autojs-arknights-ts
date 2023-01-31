@@ -1,14 +1,15 @@
 const { showAlertDialog } = require('dialogs');
 
+
 async function alert(e: any) {
     await showAlertDialog("错误", { content: e.message,type:"overlay" });
 }
 
-import {run} from "@/main";
+import {run,breathCalFireInTheSandRun} from "@/main";
 
 
 async function main() {
-    await run()
+    await breathCalFireInTheSandRun()
 }
 
 main().catch(async e => {

@@ -19,6 +19,7 @@ import {home} from "accessibility";
 import {launchApp} from "app";
 import {canDrawOverlays, manageDrawOverlays} from "floating_window";
 import {chapterMission} from "@/router/chapterMission";
+import {breathCalFireInTheSandMission} from "@/router/breathCalFireInTheSandMission";
 
 const {requestScreenCapture} = require('media_projection');
 const plugins = require('plugins');
@@ -231,7 +232,52 @@ async function missionRun() {
     }
 }
 
+/**
+ * 生息演算 沙中之火
+ */
+async function breathCalFireInTheSandRun() {
+    // 初始化
+    await init();
+    // 初始化数据
+    gameInfo.isBreathCalFireInTheSandEmergency = false
+    gameInfo.isBreathCalFireInTheSandEmergencyDoubleTime = false
+    // 路由列表
+    const gameRouter = [...breathCalFireInTheSandMission];
+    while (true) {
+        // 强制停止
+        if (otherInfo.forceStop) {
+            otherInfo.forceStop = false;
+            stop();
+            break
+        }
+        // 流程完成后停止
+        if(gameInfo.isBreathCalFireInTheSandEnd){
+            await alert(`沙火结束`);
+            gameInfo.isBreathCalFireInTheSandEnd = false
+            stop();
+            break
+        }
+        // 延迟
+        await delay(5000);
+        // 文字识别
+        const {capture, ocrResult, ocrText} = await captureAndOcr();
+        // 获取路由
+        const curRoute = geCurRoute(gameRouter, ocrText);
+        // 如果找到对应的路由
+        if (curRoute) {
+            // 执行路由action
+            await handleRoute(curRoute, ocrResult, capture)
+        }
+        // 回收截图对象
+        capture.recycle()
+    }
+}
+
+
+
+
 export {
     run,
     missionRun,
+    breathCalFireInTheSandRun
 }

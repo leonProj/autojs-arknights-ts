@@ -55,6 +55,24 @@
           <van-button :color="normalColor" @click="showLog">查看日志</van-button>
         </van-grid-item>
       </van-grid>
+
+      <h3>沙中之火</h3>
+      <van-grid clickable :column-num="2" :border="false">
+        <van-grid-item>
+          <van-button v-if="(!isRun )|| (isRun && runningTask !== RUNNING_TASK.fireInTheSandEnd)" :color="mainColor"
+                      @click="start(RUNNING_TASK.fireInTheSandEnd)" :disabled="(isRun && runningTask !== RUNNING_TASK.fireInTheSandEnd)">开始摆烂
+          </van-button>
+          <van-space v-else>
+            <van-button v-if="!isStopping && runningTask === RUNNING_TASK.fireInTheSandEnd" loading :color="mainColor"/>
+            <van-button :color="dangerColor" @click="stop" :loading="isStopping && runningTask === RUNNING_TASK.fireInTheSandEnd"
+                        loading-text="停止中...">停止运行
+            </van-button>
+          </van-space>
+        </van-grid-item>
+        <van-grid-item>
+          <van-button :color="normalColor" @click="showLog">查看日志</van-button>
+        </van-grid-item>
+      </van-grid>
     </div>
 
   </div>
@@ -109,6 +127,12 @@ export default {
       this.gameInfo = {
         ...this.gameInfo,
         isChapterMissionEnd: true
+      }
+    }
+    window.breathCalFireInTheSandEnd = () => {
+      this.gameInfo = {
+        ...this.gameInfo,
+        isBreathCalFireInTheSandEnd: true
       }
     }
 
