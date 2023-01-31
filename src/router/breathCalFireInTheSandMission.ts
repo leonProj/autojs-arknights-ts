@@ -6,7 +6,7 @@ import {
     clickRedConFirm
 } from "@/utils/accessibilityUtil";
 import {Route} from "@/router/index";
-import {deviceInfo, gameInfo} from "@/state";
+import {deviceInfo, gameInfo, otherInfo} from "@/state";
 import {click} from "accessibility";
 import {delay} from "lang";
 import {callVueMethod} from "@/utils/webviewUtil";
@@ -51,6 +51,7 @@ const breathCalFireInTheSandMission: Route[] = [
         describe: '全队补充界面',
         keywords: {
             include: ['全队补充'],
+            exclude: ['行动准备','工具箱']
         },
         action: async function ({ocrResult}) {
             await clickByHrOcrResultAndText(ocrResult, '全队补充')
@@ -92,27 +93,32 @@ const breathCalFireInTheSandMission: Route[] = [
             // 点击中间放大地图
             await clickCenter()
             // 等待淡入动画
-            await delay(2000)
+            await delay(1000)
         }
     },
     {
         describe: '地图中间放大后的界面',
         keywords: {
             include: ['资源区', '捕猎区'],
+            exclude:['敌人详情','关卡地图','紧急','事态'],
         },
         action: async function ({ocrResult}) {
             await clickByHrOcrResultAndText(ocrResult, '资源区')
             // 等待淡入动画
-            await delay(1500)
+            await delay(1000)
         }
     },
     {
         describe: '开始行动界面',
         keywords: {
-            include: ['决断D1开始行动'],
+            include: ['敌人详情','关卡地图'],
+            exclude: ['进入下一天']
         },
-        action: async function ({ocrResult}) {
-            await clickByHrOcrResultAndText(ocrResult, '决断D1开始行动')
+        action: async function () {
+            // 1674/1902=0.879 938/1067=0.879
+            const x = 0.879 * (deviceInfo.longSide as number)
+            const y = 0.879 * (deviceInfo.shortSide as number)
+            await click(x, y)
             // 等待淡入动画
             await delay(1500)
         }
@@ -125,7 +131,7 @@ const breathCalFireInTheSandMission: Route[] = [
         action: async function ({ocrResult}) {
             await clickByHrOcrResultAndText(ocrResult, '行动准备')
             // 等待淡入动画
-            await delay(1500)
+            await delay(1000)
         }
     },
     {
@@ -221,13 +227,14 @@ const breathCalFireInTheSandMission: Route[] = [
     {
         describe: '播报界面',
         keywords: {
-            include: ['太阳谷'],
+            include: ['跳过'],
         },
-        action: async function () {
+        action: async function ({ocrResult}) {
             // 1747/1846=0.946 50/1040=0.048
-            const x = 0.946 * (deviceInfo.longSide as number)
-            const y = 0.048 * (deviceInfo.shortSide as number)
-            await click(x, y)
+            // const x = 0.946 * (deviceInfo.longSide as number)
+            // const y = 0.048 * (deviceInfo.shortSide as number)
+            // await click(x, y)
+            await clickByHrOcrResultAndText(ocrResult, '跳过')
             // 等待淡入动画
             await delay(2000)
         }
@@ -297,7 +304,7 @@ const breathCalFireInTheSandMission: Route[] = [
     {
         describe: '结算界面2',
         keywords: {
-            include: ['天数','得分'],
+            include: ['总分'],
         },
         action: async function () {
             // 1747/1846=0.946  905/1023=0.888
@@ -327,6 +334,15 @@ const breathCalFireInTheSandMission: Route[] = [
         action: async function () {
             console.log('正在提交反馈至神经Loading中');
             await delay(1500);
+        }
+    },
+    {
+        describe: '脚本界面',
+        keywords: {
+            include: ['开始运行'],
+        },
+        action: async function () {
+            otherInfo.forceStop = true
         }
     },
 

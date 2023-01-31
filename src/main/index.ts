@@ -257,8 +257,7 @@ async function breathCalFireInTheSandRun() {
             stop();
             break
         }
-        // 延迟
-        await delay(5000);
+        await delay(1500)
         // 文字识别
         const {capture, ocrResult, ocrText} = await captureAndOcr();
         // 获取路由
