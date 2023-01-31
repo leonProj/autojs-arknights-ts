@@ -139,20 +139,9 @@ const breathCalFireInTheSandMission: Route[] = [
         action: async function ({ocrResult}) {
             // 资源打两次
             if(gameInfo.breathCalFireInTheSandResCount<2){
-                gameInfo.breathCalFireInTheSandResCount++
                 await clickByHrOcrResultAndText(ocrResult, '资源区')
                 // 等待淡入动画
-                await delay(1700)
-
-                // 开始行动
-                // 1674/1902=0.879 938/1067=0.879
-                const x = 0.879 * (deviceInfo.longSide as number)
-                const y = 0.879 * (deviceInfo.shortSide as number)
-                await click(x, y)
-                // 等待淡入动画
-                await delay(1000)
-
-                await prepareAction()
+                await delay(1500)
             }
             // 进入下一天
             else {
@@ -163,6 +152,24 @@ const breathCalFireInTheSandMission: Route[] = [
                 // 等待淡入动画
                 await delay(5000)
             }
+        }
+    },
+    {
+        describe: '开始行动界面',
+        keywords: {
+            include: ['决断','开始行动'],
+        },
+        action: async function () {
+            // 开始行动
+            const x = 0.9 * (deviceInfo.longSide as number)
+            const y = 0.88 * (deviceInfo.shortSide as number)
+            console.log('点击开始行动',)
+            gameInfo.breathCalFireInTheSandResCount++
+            await click(x, y)
+            await delay(1000)
+
+            await prepareAction()
+            await delay(1500)
         }
     },
     {
@@ -294,6 +301,18 @@ const breathCalFireInTheSandMission: Route[] = [
         },
         action: async function () {
             console.log('脚本界面 睡眠5s种');
+            await delay(5000)
+        }
+    },
+    {
+        describe: '是否确认进入下一天',
+        keywords: {
+            include: ['是否确认进入下一天'],
+        },
+        action: async function () {
+            const x3 = 0.752 * (deviceInfo.longSide as number)
+            const y3 = 0.689 * (deviceInfo.shortSide as number)
+            await click(x3, y3)
             await delay(5000)
         }
     },
