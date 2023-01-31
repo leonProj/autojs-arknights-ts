@@ -157,7 +157,7 @@ const breathCalFireInTheSandMission: Route[] = [
     {
         describe: '开始行动界面',
         keywords: {
-            include: ['决断','开始行动'],
+            include: ['开始行动'],
         },
         action: async function () {
             // 开始行动
