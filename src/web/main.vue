@@ -57,7 +57,7 @@
       </van-grid>
 
       <h3>沙中之火</h3>
-      <span>已经摆烂了 {{breathCalFireInTheSandCount}} 次</span><a @click="clearBreathCalFireInTheSandCount">清空</a>
+      <span>已经摆烂了 {{breathCalFireInTheSandCount}} 次</span>
       <van-field name="stepper" label="最大摆烂次数">
         <template #input>
           <van-stepper v-model="breathCalFireInTheSandMaxCount" :min="1" :disable-input="true"/>
@@ -234,9 +234,6 @@ export default {
       $autojs.invoke("enableOverlay").then(() => {
         this.checkOverlayEnable()
       });
-    },
-    clearBreathCalFireInTheSandCount(){
-      this.breathCalFireInTheSandCount = 0
     }
   },
 };
