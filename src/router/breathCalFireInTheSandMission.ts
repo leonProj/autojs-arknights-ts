@@ -340,7 +340,7 @@ const breathCalFireInTheSandMission: Route[] = [
     {
         describe: '关卡掉落显示',
         keywords: {
-            include: ['主要掉落'],
+            include: ['掉落'],
         },
         action: async function () {
             // 取消遮罩
