@@ -136,11 +136,15 @@ const breathCalFireInTheSandMission: Route[] = [
     {
         describe: '地图中间放大后的界面',
         keywords: {
-            include: ['资源区'],
+            includeOne: ['资源区','捕猎区'],
             exclude:['敌人详情','关卡地图','紧急','事态','Industry','News','行动'],
         },
-        action: async function ({ocrResult}) {
-            await clickByHrOcrResultAndText(ocrResult, '资源区')
+        action: async function ({ocrResult,ocrText}) {
+            if(ocrText.includes('资源区')){
+                await clickByHrOcrResultAndText(ocrResult, '资源区')
+            }else if(ocrText.includes('捕猎区')){
+                await clickByHrOcrResultAndText(ocrResult, '捕猎区')
+            }
             await delay(1000)
         }
     },
@@ -256,7 +260,8 @@ const breathCalFireInTheSandMission: Route[] = [
     {
         describe: '紧急事态界面',
         keywords: {
-            includeOne:['事态','零洁']
+            includeOne:['事态','零洁'],
+            exclude: ['OPERATION']
         },
         action: async function () {
             // await clickCenter()
