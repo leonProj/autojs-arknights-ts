@@ -1,12 +1,13 @@
 {
   "abis": [
+    "arm64-v8a",
     "armeabi-v7a"
   ],
   "assets": [],
   "build": {
-    "build_id": "00869FED-8",
-    "build_number": 8,
-    "build_time": 1674189212904,
+    "build_id": "B932B2BD-11",
+    "build_number": 11,
+    "build_time": 1675300166164,
     "release": false
   },
   "encryptLevel": 0,
@@ -52,5 +53,5 @@
   "scripts": {},
   "useFeatures": [],
   "versionCode": 1,
-  "versionName": "1.0.0"
+  "versionName": "1.0.5"
 }
